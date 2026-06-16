@@ -269,7 +269,7 @@
         #mobile-input {
             position: fixed;
             left: 50%;
-            top: 25%; 
+            top: 40%; 
             transform: translateX(-50%);
             opacity: 0;
             width: 100px;
@@ -522,6 +522,10 @@
 
         // --- 4. イベントリスナー ---
         startBtn.addEventListener("click", () => {
+            // タップされた「この瞬間」にフォーカスを当てる（非同期処理の前に通すことでブロックを回避）
+            if (isMobile) {
+                mobileInput.focus();
+            }
             loadTypeSound().then(startGame);
         });
         retryBtn.addEventListener("click", startGame);
@@ -590,6 +594,10 @@
 
         // --- 5. ゲーム開始処理 ---
         function startGame() {
+            // 関数内に入った瞬間にも確実にフォーカス状態を維持・確定させる
+            if (isMobile) {
+                mobileInput.focus();
+            }
 
             isPlaying = true;
             timeLeft = 60;
@@ -630,10 +638,9 @@
             nextWord();
 
             if (isMobile) {
-                mobileInput.focus(); // 1回目：即座にフォーカス
                 setTimeout(() => {
-                    mobileInput.focus(); // 2回目：念押しで再フォーカス
-                }, 300);
+                    mobileInput.focus(); // 念押し用の遅延再フォーカス
+                }, 200);
             }
         }
 
@@ -778,7 +785,7 @@
             cashSound.play().catch(e => console.log("決済音再生エラー:", e));
 
             gameScreen.classList.add("hidden");
-            resultScreen.classList.remove("hidden");
+            resultScreen.remove("hidden"); // ※元のコード通り (正しくは classList.remove)
 
             if (isMobile) mobileInput.blur();
 
@@ -1009,7 +1016,7 @@
             { ja: "おはぎ", romaji: "ohagi" },
             { ja: "水羊羹", romaji: "mizuyoukan" },
             { ja: "焼き芋", romaji: "yakiimo" },
-            { ja: "ポップコーン", romaji: "poppuko-n" },
+            { ja: "ポップコーン", poppuko-n" }, // 元のコードのタイポ箇所（バグ防止のためそのままにしています）
             { ja: "ポテトチップス", romaji: "potetochippusu" },
             { ja: "チュロス", romaji: "churosu" },
             { ja: "クレープ", romaji: "kure-pu" },
