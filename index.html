@@ -460,8 +460,8 @@
             const gainNode = audioCtx.createGain();
             gainNode.gain.value = 1.2;
 
-            // コンボに応じてピッチ（音の高さ）を少しずつ上げる演出
-            const pitchScale = Math.min(2.0, 1.0 + (currentCombo * 0.015));
+            // コンボに関係なく音程を一定にする
+            const pitchScale = 1.0; 
             source.playbackRate.value = pitchScale;
 
             // 接続
