@@ -591,10 +591,6 @@
         // --- 5. ゲーム開始処理 ---
         function startGame() {
 
-            if (isMobile) {
-                mobileInput.focus();
-            }
-
             isPlaying = true;
             timeLeft = 60;
             solvedWordCount = 0;
@@ -634,9 +630,10 @@
             nextWord();
 
             if (isMobile) {
+                mobileInput.focus(); // 1回目：即座にフォーカス
                 setTimeout(() => {
-                    mobileInput.focus();
-                }, 150);
+                    mobileInput.focus(); // 2回目：念押しで再フォーカス
+                }, 300);
             }
         }
 
