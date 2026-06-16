@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>もっちゃもっちゃ食堂</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* === 通常時（パソコンやタブレットなど大きな画面）のスタイル === */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #4a3728;
+            text-align: center;
+            padding: 40px 20px;
+            margin: 0;
+            background-color: #fcedc9;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* スマホでの背景ガタつき（揺れ）を防ぐための固定背景レイヤー */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('bg.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-top: 0;
+            margin-bottom: 12px;
+            text-shadow: 1px 1px 0px #fff;
+            background-color: rgba(255, 255, 255, 0.9); 
+            display: inline-block;                      
+            padding: 10px 30px;                         
+            border-radius: 50px;                        
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);    
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 5px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: block;
+            width: max-content;
+            margin: 0 auto 20px auto;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.92);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: background-color 0.1s ease;
+            position: relative;
+        }
+
+        #timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+            display: inline-block;
+        }
+
+        .shake-animation {
+            animation: shake 0.15s ease-in-out 2;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+            100% { transform: translateX(0); }
+        }
+
+        #penalty-pop {
+            position: absolute;
+            right: -65px;
+            top: 0;
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.5rem;
+            display: none;
+        }
+
+        .popup-animation {
+            display: block !important;
+            animation: popUp 0.6s ease-out forwards;
+        }
+
+        @keyframes popUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-30px); opacity: 0; }
+        }
+
+        #combo-container {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #f39c12;
+            height: 35px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 0 #fff;
+            transform: scale(1);
+            transition: transform 0.1s ease;
+        }
+        .combo-pop {
+            animation: comboKey 0.1s ease-out;
+            color: #e67e22 !important;
+        }
+        @keyframes comboKey {
+            0% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+
+        #character-img {
+            width: 140px;
+            height: auto;
+            margin-bottom: 10px;
+            transition: transform 0.1s ease;
+        }
+
+        #word-ja {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+
+        #word-romaji {
+            font-size: 2.2rem;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            word-break: break-all;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .bounce-effect {
+            animation: typeBounce 0.06s ease-out;
+        }
+        @keyframes typeBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04) translateY(-2px); }
+            100% { transform: scale(1); }
+        }
+
+        .typed {
+            color: #27ae60;
+            border-bottom: 3px solid #27ae60;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(39, 174, 96, 0.3);
+        }
+
+        .untyped {
+            color: #7f8c8d;
+        }
+
+        button {
+            font-size: 1.5rem;
+            padding: 12px 30px;
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #d35400;
+            font-weight: bold;
+        }
+
+        button:active {
+            transform: translateY(5px);
+            box-shadow: none;
+        }
+
+        .sub-btn {
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .credit-box {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px dashed #bdc3c7;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+        .credit-box a {
+            color: #e67e22;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .credit-box a:hover {
+            text-decoration: underline;
+        }
+
+        .receipt {
+            background-color: #ffffff;
+            color: #2c3e50;
+            font-family: 'Courier New', Courier, 'Hiragino Kaku Gothic ProN', sans-serif;
+            padding: 25px;
+            border: 1px solid #bdc3c7;
+            max-width: 380px;
+            margin: 20px auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .receipt-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .receipt-subtitle {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+
+        .receipt-line {
+            border-top: 2px dashed #7f8c8d;
+            margin: 12px 0;
+        }
+
+        .receipt-item-list {
+            max-height: 180px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .receipt-bold-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #c0392b;
+        }
+
+        #mobile-input {
+            position: fixed;
+            left: 50%;
+            top: 25%; /* 画面中央付近にしてキーボード表示時の画面跳ねを防ぐ */
+            transform: translateX(-50%);
+            opacity: 0;
+            width: 100px;
+            height: 30px;
+            font-size: 16px; 
+            z-index: -1;
+            border: none;
+            background: transparent;
+        }
+
+        /* === スマホ専用の自動調整機能（メディアクエリ） === */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                padding: 6px 20px;
+                margin-bottom: 8px;
+            }
+
+            .subtitle {
+                font-size: 0.75rem;
+                margin-bottom: 15px;
+            }
+
+            /* 【新機能】ゲームプレイ中(ingame)はタイトルと説明を消してキーボードの上の隙間に収める */
+            body.ingame h1, body.ingame .subtitle {
+                display: none !important;
+            }
+            body.ingame {
+                padding: 5px 5px;
+            }
+            body.ingame .container {
+                margin-top: 0px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            }
+
+            .container {
+                padding: 15px 12px;
+                border-radius: 15px;
+            }
+
+            #combo-container {
+                font-size: 1.3rem;
+                height: 20px;
+                margin-bottom: 3px;
+            }
+
+            #character-img {
+                width: 85px;
+                margin-bottom: 3px;
+            }
+
+            #word-ja {
+                font-size: 1.6rem;
+            }
+
+            #word-romaji {
+                font-size: 1.4rem;
+                letter-spacing: 1px;
+                margin-bottom: 15px;
+            }
+
+            button {
+                font-size: 1.15rem;
+                padding: 8px 20px;
+            }
+
+            .sub-btn {
+                font-size: 0.9rem;
+                padding: 6px 12px;
+            }
+
+            .receipt {
+                padding: 15px;
+                font-size: 0.85rem;
+                margin: 10px auto;
+            }
+            .receipt-title { font-size: 1.1rem; }
+            .receipt-bold-row { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🍔 もっちゃもっちゃ食堂 🍰</h1>
+    <div class="subtitle">〜 1分間でたくさん食べて、売り上げを伸ばそう！ 〜</div>
+
+    <input type="text" id="mobile-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="url">
+
+    <div class="container" id="game-container">
+        <div id="start-screen">
+            <img src="normal.png" alt="キャラクター" style="width: 120px; margin-bottom: 15px;"><br>
+            <button id="start-btn" style="margin-bottom: 20px;">注文開始！</button>
+            
+            <div style="font-size: 0.8rem; color: #7f8c8d; line-height: 1.5; max-width: 420px; margin: 0 auto; text-align: left; background: rgba(255,255,255,0.6); padding: 12px; border-radius: 10px;">
+                <b>【スマホ・Simejiで遊ぶ方へ】</b><br>
+                ・キーボードを<b>「英字（ローマ字）入力」</b>にしてください。<br>
+                ・伸ばし棒「ー」の代わりに<b>「 . （ドット）」キー</b>でも入力できます！<br>
+                ・キーボードが閉じたら、画面をタップするともう一度開きます。
+            </div>
+
+            <div class="credit-box">
+                イラスト協力：<b>だーしお 様 （マーモットのモットー）</b><br>
+                <a href="https://www.instagram.com/marmottooooo" target="_blank">Instagram</a> ｜ 
+                <a href="https://x.com/marmottooooo" target="_blank">X (旧Twitter)</a>
+            </div>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <div id="timer-container" style="position: relative; width: max-content; margin: 0 auto 5px auto;">
+                <div id="timer">残り時間: 60 秒</div>
+                <div id="penalty-pop">-1秒</div>
+            </div>
+
+            <div id="combo-container"></div>
+            
+            <img id="character-img" src="normal.png" alt="キャラクター">
+            
+            <div id="word-ja">単語（日本語）</div>
+            <div id="word-romaji">
+                <span class="typed"></span><span class="untyped">romaji</span>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden">
+            <h2>🎉 注文終了！ 🎉</h2>
+            <img src="image_1.png" alt="キャラクター" style="width: 120px; margin-bottom: 10px;">
+            
+            <div id="result"></div>
+            
+            <div style="margin: 15px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <button id="save-receipt-btn" class="sub-btn" style="background-color: #34495e; box-shadow: 0 4px 0 #2c3e50;">🧾 レシートを保存</button>
+                <button id="share-receipt-btn" class="sub-btn" style="background-color: #1da1f2; box-shadow: 0 4px 0 #0d8ddb;">📢 記録を共有</button>
+            </div>
+            
+            <button id="retry-btn" style="margin-top: 15px;">もう一度挑戦！</button>
+
+            <div class="credit-box">
+                イラスト協力：<b>だーしお 様 （マーモットのモットー）</b><br>
+                <a href="https://www.instagram.com/marmottooooo" target="_blank">Instagram</a> ｜ 
+                <a href="https://x.com/marmottooooo" target="_blank">X (旧Twitter)</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. 音声の設定 ---
+        const chewSound = new Audio('chew.mp3'); 
+        const bgmSound = new Audio('bgm.mp3');
+        bgmSound.loop = true;
+        bgmSound.volume = 0.5;
+        const cashSound = new Audio('cash.mp3');
+        
+        const shoutSound = new Audio('shout.mp3'); 
+        shoutSound.volume = 0.8; 
+
+        // タイピング音を複数用意して重ねて鳴らせるようにプール化
+        let audioCtx = null;
+        let typeGainNode = null;
+        const TYPE_SOUND_POOL_SIZE = 5; 
+        const typeSounds = [];
+        let typeSoundIndex = 0;
+
+        function playBoostedTypeSound(currentCombo) {
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    typeGainNode = audioCtx.createGain();
+                    typeGainNode.gain.value = 3.0; 
+                    typeGainNode.connect(audioCtx.destination);
+
+                    for (let i = 0; i < TYPE_SOUND_POOL_SIZE; i++) {
+                        const targetAudio = new Audio('type.mp3');
+                        
+                        targetAudio.preservesPitch = false;
+                        targetAudio.webkitPreservesPitch = false;
+                        
+                        const source = audioCtx.createMediaElementSource(targetAudio);
+                        source.connect(typeGainNode);
+                        typeSounds.push(targetAudio);
+                    }
+                } catch (e) {
+                    console.log("Web Audio API 初期化エラー:", e);
+                }
+            }
+            
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            if (typeSounds.length === 0) return;
+
+            const currentAudio = typeSounds[typeSoundIndex];
+            typeSoundIndex = (typeSoundIndex + 1) % TYPE_SOUND_POOL_SIZE;
+
+            const pitchScale = Math.min(2.3, 1.0 + (currentCombo * 0.015));
+            currentAudio.playbackRate = pitchScale;
+
+            currentAudio.currentTime = 0;
+            currentAudio.play().catch(e => console.log("タイピング音再生エラー:", e));
+        }
+
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        // --- 2. ゲームの状態を管理する変数 ---
+        let remainingWords = [];
+        let currentWord = {};
+        let typedBuffer = "";       
+        let displayRomaji = "";     
+        let timeLeft = 60;
+        let timerInterval = null;
+        let isPlaying = false;
+        let mouthOpenTimeout = null;
+
+        let solvedWordCount = 0;
+        let totalCharCount = 0;
+        let totalMoney = 0; 
+        let missCount = 0; 
+        let orderHistory = []; 
+
+        let comboCount = 0;
+        let maxComboCount = 0;
+
+        // --- 3. HTML要素の取得 ---
+        const startScreen = document.getElementById("start-screen");
+        const gameScreen = document.getElementById("game-screen");
+        const resultScreen = document.getElementById("result-screen");
+        const gameContainer = document.getElementById("game-container");
+        
+        const startBtn = document.getElementById("start-btn");
+        const retryBtn = document.getElementById("retry-btn");
+        
+        const timerElement = document.getElementById("timer");
+        const penaltyPopElement = document.getElementById("penalty-pop"); 
+        const comboContainer = document.getElementById("combo-container");
+        const wordJaElement = document.getElementById("word-ja");
+        const wordRomajiElement = document.getElementById("word-romaji");
+        const resultElement = document.getElementById("result");
+        const characterImgElement = document.getElementById("character-img");
+        
+        const saveReceiptBtn = document.getElementById("save-receipt-btn");
+        const shareReceiptBtn = document.getElementById("share-receipt-btn");
+        const mobileInput = document.getElementById("mobile-input");
+
+        // --- 4. イベントリスナー ---
+        startBtn.addEventListener("click", startGame);
+        retryBtn.addEventListener("click", startGame);
+        window.addEventListener("keydown", handleKeyDown);
+
+        mobileInput.addEventListener("input", (event) => {
+            if (!isMobile || !isPlaying) {
+                mobileInput.value = "";
+                return;
+            }
+            let char = event.data;
+            if (!char && mobileInput.value.length > 0) {
+                char = mobileInput.value.slice(-1);
+            }
+            if (char) {
+                handleCharInput(char);
+            }
+            mobileInput.value = "";
+        });
+
+        // 強制スクロールを廃止してフォーカスだけを当てるように修正
+        gameContainer.addEventListener("click", () => {
+            if (isPlaying && isMobile) {
+                mobileInput.focus();
+            }
+        });
+
+        function getRomajiVariants(baseRomaji) {
+            let variants = [baseRomaji];
+            const rules = [
+                { src: "ffu", dst: "hhu" },
+                { src: "cchi", dst: "tti" }, 
+                { src: "cchi", dst: "cci" },
+                { src: "chi", dst: "ti" },   
+                { src: "chi", dst: "ci" },   
+                { src: "shi", dst: "si" },   
+                { src: "tsu", dst: "tu" },   
+                { src: "fu", dst: "hu" },    
+                { src: "ji", dst: "zi" },    
+                { src: "cha", dst: "tya" },  
+                { src: "chu", dst: "tyu" },  
+                { src: "cho", dst: "tyo" },  
+                { src: "sha", dst: "sya" },  
+                { src: "shu", dst: "syu" },  
+                { src: "sho", dst: "syo" },  
+                { src: "ja", dst: "zya" },   
+                { src: "ju", dst: "zyu" },   
+                { src: "jo", dst: "zyo" }    
+            ];
+            let queue = [baseRomaji];
+            let visited = new Set(queue);
+            while(queue.length > 0) {
+                let curr = queue.shift();
+                for (let rule of rules) {
+                    if (curr.includes(rule.src)) {
+                        let next = curr.replace(new RegExp(rule.src, 'g'), rule.dst);
+                        if (!visited.has(next)) { visited.add(next); queue.push(next); }
+                    }
+                    if (curr.includes(rule.dst)) {
+                        let next = curr.replace(new RegExp(rule.dst, 'g'), rule.src);
+                        if (!visited.has(next)) { visited.add(next); queue.push(next); }
+                    }
+                }
+            }
+            return Array.from(visited);
+        }
+
+        // --- 5. ゲーム開始処理 ---
+        function startGame() {
+            isPlaying = true;
+            timeLeft = 60;
+            solvedWordCount = 0;
+            totalCharCount = 0;
+            totalMoney = 0; 
+            missCount = 0; 
+            comboCount = 0;     
+            maxComboCount = 0;  
+            orderHistory = []; 
+            
+            remainingWords = [...wordList];
+
+            startScreen.classList.add("hidden");
+            resultScreen.classList.add("hidden");
+            gameScreen.classList.remove("hidden");
+
+            // スマホ用：画面をコンパクトにするクラスを付与
+            document.body.classList.add("ingame");
+
+            penaltyPopElement.classList.remove("popup-animation");
+            timerElement.classList.remove("shake-animation");
+            comboContainer.textContent = ""; 
+
+            resetCharacterImg();
+
+            bgmSound.currentTime = 0;
+            bgmSound.play().catch(e => console.log("BGM再生エラー:", e));
+
+            timerElement.textContent = `残り時間: ${timeLeft} 秒`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `残り時間: ${timeLeft} 秒`;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            nextWord();
+
+            if (isMobile) {
+                setTimeout(() => {
+                    mobileInput.focus();
+                }, 150);
+            }
+        }
+
+        function nextWord() {
+            typedBuffer = ""; 
+            if (remainingWords.length === 0) {
+                remainingWords = [...wordList];
+            }
+            const randomIndex = Math.floor(Math.random() * remainingWords.length);
+            currentWord = remainingWords.splice(randomIndex, 1)[0];
+            currentWord.variants = getRomajiVariants(currentWord.romaji);
+            displayRomaji = currentWord.romaji; 
+            wordJaElement.textContent = currentWord.ja;
+            updateRomajiDisplay();
+        }
+
+        function updateRomajiDisplay() {
+            const typedPart = displayRomaji.substring(0, typedBuffer.length);
+            const untypedPart = displayRomaji.substring(typedBuffer.length);
+            wordRomajiElement.innerHTML = `
+                <span class="typed">${typedPart}</span><span class="untyped">${untypedPart}</span>
+            `;
+        }
+
+        // --- 8. 入力判定のコアロジック ---
+        function handleCharInput(char) {
+            if (!isPlaying) return;
+
+            let inputChar = char.toLowerCase();
+            if (inputChar === '.') inputChar = '-';
+            if (!/[a-z\-]/.test(inputChar)) return; 
+
+            const nextBuffer = typedBuffer + inputChar;
+            const matchingVariants = currentWord.variants.filter(v => v.startsWith(nextBuffer));
+
+            if (matchingVariants.length > 0) {
+                typedBuffer = nextBuffer;
+                totalCharCount++;
+                
+                comboCount++;
+                if (comboCount > maxComboCount) {
+                    maxComboCount = comboCount;
+                }
+
+                if (comboCount >= 3) {
+                    comboContainer.textContent = `${comboCount} Combo!`;
+                    comboContainer.classList.remove("combo-pop");
+                    void comboContainer.offsetWidth; 
+                    comboContainer.classList.add("combo-pop");
+                } else {
+                    comboContainer.textContent = "";
+                }
+
+                wordRomajiElement.classList.remove("bounce-effect");
+                void wordRomajiElement.offsetWidth; 
+                wordRomajiElement.classList.add("bounce-effect");
+
+                playBoostedTypeSound(comboCount);
+
+                if (!displayRomaji.startsWith(typedBuffer)) {
+                    displayRomaji = matchingVariants[0];
+                }
+
+                updateRomajiDisplay();
+
+                if (typedBuffer === displayRomaji) {
+                    solvedWordCount++;
+                    const wordPrice = displayRomaji.length * 100;
+                    totalMoney += wordPrice;
+                    orderHistory.push({ name: currentWord.ja, price: wordPrice });
+                    
+                    chewSound.currentTime = 0;
+                    chewSound.play().catch(e => console.log("オーディオ再生エラー:", e));
+
+                    characterImgElement.src = 'image_1.png'; 
+                    characterImgElement.style.transform = 'scale(1.1)';
+
+                    if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
+                    mouthOpenTimeout = setTimeout(resetCharacterImg, 1500);
+
+                    nextWord();
+                }
+            } else {
+                missCount++;
+                comboCount = 0; 
+                comboContainer.textContent = "";
+                
+                timeLeft = Math.max(0, timeLeft - 1);
+                timerElement.textContent = `残り時間: ${timeLeft} 秒`;
+                
+                penaltyPopElement.classList.remove("popup-animation");
+                void penaltyPopElement.offsetWidth; 
+                penaltyPopElement.classList.add("popup-animation");
+                
+                timerElement.classList.remove("shake-animation");
+                void timerElement.offsetWidth;
+                timerElement.classList.add("shake-animation");
+                
+                gameContainer.style.backgroundColor = "rgba(255, 200, 200, 0.95)";
+                setTimeout(() => {
+                    if (isPlaying) gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)";
+                }, 100);
+
+                const clonedShout = shoutSound.cloneNode(true);
+                clonedShout.play().catch(e => console.log("叫び音再生エラー:", e));
+
+                characterImgElement.src = 'shout.png';
+                characterImgElement.style.transform = 'scale(1.1)';
+
+                if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
+                mouthOpenTimeout = setTimeout(resetCharacterImg, 1000);
+            }
+        }
+
+        function handleKeyDown(event) {
+            if (isMobile) return;
+            if (!isPlaying || event.key.length > 1 || event.ctrlKey || event.altKey || event.metaKey) return;
+            handleCharInput(event.key);
+        }
+
+        function resetCharacterImg() {
+            characterImgElement.src = 'normal.png';
+            characterImgElement.style.transform = 'scale(1)';
+        }
+
+        // --- 9. ゲーム終了処理 ---
+        function endGame() {
+            isPlaying = false;
+            clearInterval(timerInterval);
+            if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
+
+            bgmSound.pause();
+            gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; 
+            
+            // スマホ用：タイトル非表示クラスを解除
+            document.body.classList.remove("ingame");
+
+            cashSound.currentTime = 0;
+            cashSound.play().catch(e => console.log("決済音再生エラー:", e));
+
+            gameScreen.classList.add("hidden");
+            resultScreen.classList.remove("hidden");
+
+            if (isMobile) mobileInput.blur();
+
+            const tax = Math.floor(totalMoney * 0.1);
+            const grandTotal = totalMoney + tax; 
+
+            let rankName = "お腹ペコペコ一般人";
+            if (grandTotal === 0) rankName = "ただの通行人";
+            else if (grandTotal <= 4000) rankName = "ちょい食いお馴染みさん";
+            else if (grandTotal <= 9000) rankName = "常連のプロ食いしん坊";
+            else if (grandTotal <= 16000) rankName = "精鋭フードファイター";
+            else rankName = "伝説のもっちゃもっちゃ隊";
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            let receiptItemsHtml = "";
+            orderHistory.forEach(item => {
+                receiptItemsHtml += `
+                    <div class="receipt-row">
+                        <span>・${item.name}</span>
+                        <span>￥${item.price.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+
+            if (orderHistory.length === 0) {
+                receiptItemsHtml = `<div class="receipt-row" style="color:#7f8c8d;"><span>（何も食べられませんでした）</span></div>`;
+            }
+
+            resultElement.innerHTML = `
+                <div class="receipt" id="receipt-box">
+                    <div class="receipt-title">もっちゃもっちゃ食堂</div>
+                    <div class="receipt-subtitle">${dateStr}  伝票明細</div>
+                    
+                    <div class="receipt-line"></div>
+                    
+                    <div style="text-align: center; font-weight: bold; font-size: 1.1rem; margin: 10px 0; color: #2c3e50;">
+                        称号：${rankName}
+                    </div>
+
+                    <div class="receipt-line"></div>
+                    
+                    <div class="receipt-row" style="font-weight: bold; color: #e67e22;">
+                        <span>最高連続コンボ</span>
+                        <span>${maxComboCount} Combo!</span>
+                    </div>
+
+                    <div class="receipt-line"></div>
+                    
+                    <div class="receipt-item-list" id="receipt-list">
+                        ${receiptItemsHtml}
+                    </div>
+                    
+                    <div class="receipt-line"></div>
+                    
+                    <div class="receipt-row">
+                        <span>税抜小計 (${solvedWordCount}品)</span>
+                        <span>￥${totalMoney.toLocaleString()}</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>消費税 (10%)</span>
+                        <span>￥${tax.toLocaleString()}</span>
+                    </div>
+                    
+                    <div class="receipt-line"></div>
+                    
+                    <div class="receipt-bold-row">
+                        <span>合計 (税込)</span>
+                        <span>￥${grandTotal.toLocaleString()}</span>
+                    </div>
+                </div>
+                <p style="font-size:1rem; font-weight:bold; color:#4a3728;">合計 ${totalCharCount} 文字タイピングしました！（ミス: ${missCount}回）</p>
+            `;
+
+            saveReceiptBtn.onclick = function() {
+                const target = document.getElementById("receipt-box");
+                const list = document.getElementById("receipt-list");
+                const originalMaxHeight = list.style.maxHeight;
+                list.style.maxHeight = "none";
+
+                html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+                    list.style.maxHeight = originalMaxHeight;
+                    const link = document.createElement("a");
+                    link.download = `moccha_shokudo_receipt.png`;
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                }).catch(err => {
+                    list.style.maxHeight = originalMaxHeight;
+                    alert("レシートの保存に失敗しました。");
+                    console.error(err);
+                });
+            };
+
+            shareReceiptBtn.onclick = async function() {
+                const target = document.getElementById("receipt-box");
+                const list = document.getElementById("receipt-list");
+                const originalMaxHeight = list.style.maxHeight;
+                list.style.maxHeight = "none";
+
+                try {
+                    const canvas = await html2canvas(target, { scale: 2, backgroundColor: "#ffffff" });
+                    list.style.maxHeight = originalMaxHeight;
+                    const dataUrl = canvas.toDataURL("image/png");
+                    const blob = await (await fetch(dataUrl)).blob();
+                    const file = new File([blob], 'receipt.png', { type: 'image/png' });
+
+                    const shareData = {
+                        title: 'もっちゃもっちゃ食堂',
+                        text: `今日のもっちゃもっちゃ食堂の売上は【${grandTotal.toLocaleString()}円】（最高 ${maxComboCount} コンボ）！称号は【${rankName}】でした！ #もっちゃもっちゃ食堂`,
+                    };
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        shareData.files = [file];
+                        await navigator.share(shareData);
+                    } else if (navigator.share) {
+                        await navigator.share(shareData);
+                    } else {
+                        alert("お使いのブラウザは直接共有に対応していません。「レシートを保存」から画像を保存して投稿してね！");
+                    }
+                } catch (err) {
+                    list.style.maxHeight = originalMaxHeight;
+                    console.error(err);
+                }
+            };
+        }
+
+        // --- 10. 単語データ ---
+        const wordList = [
+            { ja: "カレーライス", romaji: "kare-raisu" },
+            { ja: "おにぎり", romaji: "onigiri" },
+            { ja: "ラーメン", romaji: "ra-men" },
+            { ja: "オムライス", romaji: "omuraisu" },
+            { ja: "ハンバーグ", romaji: "hanba-gu" },
+            { ja: "お寿司", romaji: "osushi" },
+            { ja: "たこ焼き", romaji: "takoyaki" },
+            { ja: "みそ汁", romaji: "misoshiru" },
+            { ja: "テンペ", romaji: "tenpe" },
+            { ja: "プリン", romaji: "purin" },
+            { ja: "パンケーキ", romaji: "panke-ki" },
+            { ja: "メロンパン", romaji: "meronpan" },
+            { ja: "ギョーザ", romaji: "gyo-za" },
+            { ja: "ステーキ", romaji: "sute-ki" },
+            { ja: "うどん", romaji: "udon" },
+            { ja: "ピザ", romaji: "piza" },
+            { ja: "フライドポテト", romaji: "furaidopoteto" },
+            { ja: "イチゴパフェ", romaji: "ichigopafe" },
+            { ja: "チャーハン", romaji: "cha-han" },
+            { ja: "から揚げ", romaji: "karaage" },
+            { ja: "とんかつ", romaji: "tonkatsu" },
+            { ja: "スパゲッティ", romaji: "supagetti" },
+            { ja: "グラタン", romaji: "guratan" },
+            { ja: "サンドイッチ", romaji: "sandoicchi" },
+            { ja: "ハンバーガー", romaji: "hanba-ga-" },
+            { ja: "エビフライ", romaji: "ebifurai" },
+            { ja: "コロッケ", romaji: "korokke" },
+            { ja: "オムレツ", romaji: "omuretsu" },
+            { ja: "焼き鳥", romaji: "yakitori" },
+            { ja: "おでん", romaji: "oden" },
+            { ja: "すき焼き", romaji: "sukiyaki" },
+            { ja: "天ぷら", romaji: "tenpura" },
+            { ja: "牛丼", romaji: "gyuudon" },
+            { ja: "そば", romaji: "soba" },
+            { ja: "たい焼き", romaji: "taiyaki" },
+            { ja: "みたらし団子", romaji: "mitarashidango" },
+            { ja: "シュークリーム", romaji: "shu-kuri-mu" },
+            { ja: "ショートケーキ", romaji: "sho-toke-ki" },
+            { ja: "チョコレート", romaji: "chokore-to" },
+            { ja: "アイスクリーム", romaji: "aisukuri-mu" },
+            { ja: "ドーナツ", romaji: "do-natsu" },
+            { ja: "アップルパイ", romaji: "appurupai" },
+            { ja: "クッキー", romaji: "kukki-" },
+            { ja: "ゼリー", romaji: "zeri-" },
+            { ja: "チーズケーキ", romaji: "chi-zuke-ki" },
+            { ja: "肉まん", romaji: "nikuman" },
+            { ja: "小籠包", romaji: "shouronpou" },
+            { ja: "麻婆豆腐", romaji: "ma-bo-doufu" },
+            { ja: "回鍋肉", romaji: "hoikorou" },
+            { ja: "酢豚", romaji: "subuta" },
+            { ja: "親子丼", romaji: "oyakodon" },
+            { ja: "カツ丼", romaji: "katsudon" },
+            { ja: "天丼", romaji: "tendon" },
+            { ja: "冷やし中華", romaji: "hiyashichuuka" },
+            { ja: "豚汁", romaji: "tonjiru" },
+            { ja: "生姜焼き", romaji: "shougayaki" },
+            { ja: "肉じゃが", romaji: "nikujaga" },
+            { ja: "筑前煮", romaji: "chikuzenni" },
+            { ja: "焼き魚", romaji: "yakizakana" },
+            { ja: "刺身", romaji: "sashimi" },
+            { ja: "ちらし寿司", romaji: "chirashizushi" },
+            { ja: "茶碗蒸し", romaji: "chawanmushi" },
+            { ja: "ビビンバ", romaji: "bibinba" },
+            { ja: "タコライス", romaji: "takoraisu" },
+            { ja: "ナポリタン", romaji: "naporitan" },
+            { ja: "カルボナーラ", romaji: "karubona-ra" },
+            { ja: "ドリア", romaji: "doria" },
+            { ja: "ローストビーフ", romaji: "ro-stobi-fu" },
+            { ja: "ロールキャベツ", romaji: "ro-rukyabetsu" },
+            { ja: "チキン南蛮", romaji: "chikinnanban" },
+            { ja: "コーンスープ", romaji: "ko-nsu-pu" },
+            { ja: "クラムチャウダー", romaji: "kuramuchauda-" },
+            { ja: "ビーフシチュー", romaji: "bi-fushichu-" },
+            { ja: "ポトフ", romaji: "potofu" },
+            { ja: "チヂミ", romaji: "chijimi" },
+            { ja: "トッポギ", romaji: "toppogi" },
+            { ja: "サムギョプサル", romaji: "samugyopusaru" },
+            { ja: "生春巻き", romaji: "namaharumaki" }, 
+            { ja: "トムヤムクン", romaji: "tomuyamukun" },
+            { ja: "ガパオライス", romaji: "gapaoraisu" },
+            { ja: "タコス", romaji: "takosu" },
+            { ja: "ナチョス", romaji: "nachosu" },
+            { ja: "フィッシュアンドチップス", romaji: "fisshuandochippusu" },
+            { ja: "パエリア", romaji: "paeria" },
+            { ja: "アヒージョ", romaji: "ahi-jo" },
+            { ja: "ラザニア", romaji: "razania" },
+            { ja: "ミートパイ", romaji: "mi-topai" },
+            { ja: "チキンナゲット", romaji: "chikinnagetto" },
+            { ja: "フレンチトースト", romaji: "furenchito-suto" },
+            { ja: "マカロン", romaji: "makaron" },
+            { ja: "フィナンシェ", romaji: "finanshe" }, 
+            { ja: "エクレア", romaji: "ekurea" },
+            { ja: "モンブラン", romaji: "monburan" },
+            { ja: "ティラミス", romaji: "thiramisu" },
+            { ja: "タルト", romaji: "taruto" }, 
+            { ja: "ガトーショコラ", romaji: "gato-shokora" },
+            { ja: "わらび餅", romaji: "warabimochi" },
+            { ja: "あんみつ", romaji: "anmitsu" },
+            { ja: "おはぎ", romaji: "ohagi" },
+            { ja: "水羊羹", romaji: "mizuyoukan" },
+            { ja: "焼き芋", romaji: "yakiimo" },
+            { ja: "ポップコーン", romaji: "poppuko-n" },
+            { ja: "ポテトチップス", romaji: "potetochippusu" },
+            { ja: "チュロス", romaji: "churosu" },
+            { ja: "クレープ", romaji: "kure-pu" },
+            { ja: "ワッフル", romaji: "waffuru" },
+            { ja: "ごま団子", romaji: "gomadango" },
+            { ja: "杏仁豆腐", romaji: "annindoufu" },
+            { ja: "マンゴープリン", romaji: "mango-purin" },
+            { ja: "エッグタルト", romaji: "eggutaruto" }
+        ];
+    </script>
+</body>
+</html>
