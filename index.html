@@ -522,13 +522,22 @@
 
         // --- 4. イベントリスナー ---
         startBtn.addEventListener("click", () => {
-            // タップされた「この瞬間」にフォーカスを当てる（非同期処理の前に通すことでブロックを回避）
+            // 【最重要】ボタンが押された「生のクリックイベント」の瞬間、1番最初にフォーカスを当てる
             if (isMobile) {
                 mobileInput.focus();
             }
+            // その後、AudioContextの初期化(非同期)を行い、完了したらゲームを始める
             loadTypeSound().then(startGame);
         });
-        retryBtn.addEventListener("click", startGame);
+        
+        retryBtn.addEventListener("click", () => {
+            if (isMobile) {
+                mobileInput.focus();
+            }
+            // リトライ時はすでにloadTypeSoundが完了しているのでそのままスタート
+            startGame();
+        });
+        
         window.addEventListener("keydown", handleKeyDown);
 
         mobileInput.addEventListener("input", (event) => {
@@ -594,7 +603,7 @@
 
         // --- 5. ゲーム開始処理 ---
         function startGame() {
-            // 関数内に入った瞬間にも確実にフォーカス状態を維持・確定させる
+            // 開始直後にも念のためフォーカスを維持
             if (isMobile) {
                 mobileInput.focus();
             }
@@ -639,8 +648,8 @@
 
             if (isMobile) {
                 setTimeout(() => {
-                    mobileInput.focus(); // 念押し用の遅延再フォーカス
-                }, 200);
+                    mobileInput.focus(); // 画面切り替え時の念押し遅延フォーカス
+                }, 150);
             }
         }
 
@@ -694,12 +703,10 @@
                     comboContainer.textContent = "";
                 }
 
-                // スマホでも確実にローマ字を揺らすための修正ポイント
                 wordRomajiElement.classList.remove("bounce-effect");
-                void wordRomajiElement.offsetWidth; // これでスマホに強制描き直しをさせてアニメーションを発動
+                void wordRomajiElement.offsetWidth; 
                 wordRomajiElement.classList.add("bounce-effect");
 
-                // 音飛びのない新しい効果音再生を呼び出し
                 playBoostedTypeSound(comboCount);
 
                 if (!displayRomaji.startsWith(typedBuffer)) {
@@ -760,7 +767,6 @@
         function handleKeyDown(event) {
             if (isMobile) return;
             if (!isPlaying || event.key.length > 1 || event.ctrlKey || event.altKey || event.metaKey) return;
-            // パソコン版でも初期化が走るように念のため
             if(!audioCtx) loadTypeSound();
             handleCharInput(event.key);
         }
@@ -785,7 +791,8 @@
             cashSound.play().catch(e => console.log("決済音再生エラー:", e));
 
             gameScreen.classList.add("hidden");
-            resultScreen.remove("hidden"); // ※元のコード通り (正しくは classList.remove)
+            resultScreen.removeAttribute("hidden");
+            resultScreen.classList.remove("hidden");
 
             if (isMobile) mobileInput.blur();
 
@@ -1016,7 +1023,7 @@
             { ja: "おはぎ", romaji: "ohagi" },
             { ja: "水羊羹", romaji: "mizuyoukan" },
             { ja: "焼き芋", romaji: "yakiimo" },
-            { ja: "ポップコーン", poppuko-n" }, // 元のコードのタイポ箇所（バグ防止のためそのままにしています）
+            { ja: "ポップコーン", romaji: "poppuko-n" }, 
             { ja: "ポテトチップス", romaji: "potetochippusu" },
             { ja: "チュロス", romaji: "churosu" },
             { ja: "クレープ", romaji: "kure-pu" },
