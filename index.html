@@ -149,12 +149,13 @@
             width: 100%;
         }
 
+        /* 揺れるアニメーションの定義 */
         .bounce-effect {
-            animation: typeBounce 0.06s ease-out;
+            animation: typeBounce 0.08s ease-out;
         }
         @keyframes typeBounce {
             0% { transform: scale(1); }
-            50% { transform: scale(1.04) translateY(-2px); }
+            50% { transform: scale(1.05) translateY(-3px); }
             100% { transform: scale(1); }
         }
 
@@ -268,7 +269,7 @@
         #mobile-input {
             position: fixed;
             left: 50%;
-            top: 25%; /* 画面中央付近にしてキーボード表示時の画面跳ねを防ぐ */
+            top: 25%; 
             transform: translateX(-50%);
             opacity: 0;
             width: 100px;
@@ -279,7 +280,7 @@
             background: transparent;
         }
 
-        /* === スマホ専用の自動調整機能（メディアクエリ） === */
+        /* === スマホ専用の自動調整機能 === */
         @media (max-width: 480px) {
             body {
                 padding: 15px 10px;
@@ -296,7 +297,6 @@
                 margin-bottom: 15px;
             }
 
-            /* 【新機能】ゲームプレイ中(ingame)はタイトルと説明を消してキーボードの上の隙間に収める */
             body.ingame h1, body.ingame .subtitle {
                 display: none !important;
             }
@@ -422,56 +422,60 @@
         const chewSound = new Audio('chew.mp3'); 
         const bgmSound = new Audio('bgm.mp3');
         bgmSound.loop = true;
-        bgmSound.volume = 0.5;
+        bgmSound.volume = 0.4;
         const cashSound = new Audio('cash.mp3');
-        
         const shoutSound = new Audio('shout.mp3'); 
-        shoutSound.volume = 0.8; 
+        shoutSound.volume = 0.6; 
 
-        // タイピング音を複数用意して重ねて鳴らせるようにプール化
+        // 音切れ対策：Web Audio APIでのタイピング効果音高速生成システム
         let audioCtx = null;
-        let typeGainNode = null;
-        const TYPE_SOUND_POOL_SIZE = 5; 
-        const typeSounds = [];
-        let typeSoundIndex = 0;
+        let typeAudioBuffer = null;
 
-        function playBoostedTypeSound(currentCombo) {
-            if (!audioCtx) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    typeGainNode = audioCtx.createGain();
-                    typeGainNode.gain.value = 3.0; 
-                    typeGainNode.connect(audioCtx.destination);
-
-                    for (let i = 0; i < TYPE_SOUND_POOL_SIZE; i++) {
-                        const targetAudio = new Audio('type.mp3');
-                        
-                        targetAudio.preservesPitch = false;
-                        targetAudio.webkitPreservesPitch = false;
-                        
-                        const source = audioCtx.createMediaElementSource(targetAudio);
-                        source.connect(typeGainNode);
-                        typeSounds.push(targetAudio);
-                    }
-                } catch (e) {
-                    console.log("Web Audio API 初期化エラー:", e);
-                }
+        // 効果音ファイルを先読みしておく
+        async function loadTypeSound() {
+            if (audioCtx) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const response = await fetch('type.mp3');
+                const arrayBuffer = await response.arrayBuffer();
+                typeAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            } catch (e) {
+                console.log("オーディオの先読みエラー:", e);
             }
+        }
+
+        // 超高速連打に対応した再生システム（鳴り終わったら自動メモリ解放）
+        function playBoostedTypeSound(currentCombo) {
+            if (!audioCtx || !typeAudioBuffer) return;
             
-            if (audioCtx && audioCtx.state === 'suspended') {
+            if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
 
-            if (typeSounds.length === 0) return;
+            // 鳴らすたびに新しい音源ノードを作ることで音飛びを完全回避
+            const source = audioCtx.createBufferSource();
+            source.buffer = typeAudioBuffer;
 
-            const currentAudio = typeSounds[typeSoundIndex];
-            typeSoundIndex = (typeSoundIndex + 1) % TYPE_SOUND_POOL_SIZE;
+            // 音量調整ノード（歪まない適切な音量に設定）
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = 1.2;
 
-            const pitchScale = Math.min(2.3, 1.0 + (currentCombo * 0.015));
-            currentAudio.playbackRate = pitchScale;
+            // コンボに応じてピッチ（音の高さ）を少しずつ上げる演出
+            const pitchScale = Math.min(2.0, 1.0 + (currentCombo * 0.015));
+            source.playbackRate.value = pitchScale;
 
-            currentAudio.currentTime = 0;
-            currentAudio.play().catch(e => console.log("タイピング音再生エラー:", e));
+            // 接続
+            source.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            // 再生開始
+            source.start(0);
+
+            // 音が鳴り終わったら自動で切断してメモリを片付ける
+            source.onended = () => {
+                source.disconnect();
+                gainNode.disconnect();
+            };
         }
 
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -517,7 +521,9 @@
         const mobileInput = document.getElementById("mobile-input");
 
         // --- 4. イベントリスナー ---
-        startBtn.addEventListener("click", startGame);
+        startBtn.addEventListener("click", () => {
+            loadTypeSound().then(startGame);
+        });
         retryBtn.addEventListener("click", startGame);
         window.addEventListener("keydown", handleKeyDown);
 
@@ -536,7 +542,6 @@
             mobileInput.value = "";
         });
 
-        // 強制スクロールを廃止してフォーカスだけを当てるように修正
         gameContainer.addEventListener("click", () => {
             if (isPlaying && isMobile) {
                 mobileInput.focus();
@@ -601,7 +606,6 @@
             resultScreen.classList.add("hidden");
             gameScreen.classList.remove("hidden");
 
-            // スマホ用：画面をコンパクトにするクラスを付与
             document.body.classList.add("ingame");
 
             penaltyPopElement.classList.remove("popup-animation");
@@ -681,10 +685,12 @@
                     comboContainer.textContent = "";
                 }
 
+                // スマホでも確実にローマ字を揺らすための修正ポイント
                 wordRomajiElement.classList.remove("bounce-effect");
-                void wordRomajiElement.offsetWidth; 
+                void wordRomajiElement.offsetWidth; // これでスマホに強制描き直しをさせてアニメーションを発動
                 wordRomajiElement.classList.add("bounce-effect");
 
+                // 音飛びのない新しい効果音再生を呼び出し
                 playBoostedTypeSound(comboCount);
 
                 if (!displayRomaji.startsWith(typedBuffer)) {
@@ -745,6 +751,8 @@
         function handleKeyDown(event) {
             if (isMobile) return;
             if (!isPlaying || event.key.length > 1 || event.ctrlKey || event.altKey || event.metaKey) return;
+            // パソコン版でも初期化が走るように念のため
+            if(!audioCtx) loadTypeSound();
             handleCharInput(event.key);
         }
 
@@ -762,7 +770,6 @@
             bgmSound.pause();
             gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; 
             
-            // スマホ用：タイトル非表示クラスを解除
             document.body.classList.remove("ingame");
 
             cashSound.currentTime = 0;
