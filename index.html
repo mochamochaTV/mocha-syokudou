@@ -590,6 +590,11 @@
 
         // --- 5. ゲーム開始処理 ---
         function startGame() {
+
+            if (isMobile) {
+                mobileInput.focus();
+            }
+
             isPlaying = true;
             timeLeft = 60;
             solvedWordCount = 0;
