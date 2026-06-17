@@ -573,6 +573,7 @@
         function getRomajiVariants(baseRomaji) {
             let variants = [baseRomaji];
             const rules = [
+                { src: "she", dst: "sye" }, // フィナンシェ用バリエーション
                 { src: "ffu", dst: "hhu" },
                 { src: "cchi", dst: "tti" }, 
                 { src: "cchi", dst: "cci" },
@@ -1015,7 +1016,7 @@
             { ja: "ナチョス", romaji: "nachosu" },
             { ja: "フィッシュアンドチップス", romaji: "fisshuandochippusu" },
             { ja: "パエリア", romaji: "paeria" },
-            { ja: "アヒージョ", romaji: "ahi-jo" },
+            { Gja: "アヒージョ", romaji: "ahi-jo" },
             { ja: "ラザニア", romaji: "razania" },
             { ja: "ミートパイ", romaji: "mi-topai" },
             { ja: "チキンナゲット", romaji: "chikinnagetto" },
