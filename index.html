@@ -77,6 +77,18 @@
             position: relative;
         }
 
+        /* 累計売上表示用のスタイル */
+        .total-sales-box {
+            background-color: #fffbf0;
+            border: 2px dashed #f39c12;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #d35400;
+        }
+
         #timer {
             font-size: 1.5rem;
             font-weight: bold;
@@ -203,7 +215,7 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         .credit-box {
@@ -322,6 +334,12 @@
                 border-radius: 15px;
             }
 
+            .total-sales-box {
+                font-size: 1rem;
+                padding: 8px;
+                margin-bottom: 15px;
+            }
+
             #combo-container {
                 font-size: 1.3rem;
                 height: 20px;
@@ -372,6 +390,10 @@
 
     <div class="container" id="game-container">
         <div id="start-screen">
+            <div class="total-sales-box">
+                🏪 これまでの累計売上：<span id="total-sales-display">￥0</span>
+            </div>
+
             <img src="normal.png" alt="キャラクター" style="width: 120px; margin-bottom: 15px;"><br>
             <button id="start-btn" style="margin-bottom: 20px;">注文開始！</button>
             
@@ -416,7 +438,10 @@
                 <button id="share-receipt-btn" class="sub-btn" style="background-color: #1da1f2; box-shadow: 0 4px 0 #0d8ddb;">📢 記録を共有</button>
             </div>
             
-            <button id="retry-btn" style="margin-top: 15px;">もう一度挑戦！</button>
+            <div style="margin-top: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <button id="retry-btn">もう一度挑戦！</button>
+                <button id="home-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">🏠 ホームに戻る</button>
+            </div>
 
             <div class="credit-box">
                 イラスト協力：<b>だーしお 様 （マーモットのモットー）</b><br>
@@ -508,6 +533,9 @@
         let comboCount = 0;
         let maxComboCount = 0;
 
+        // 累計売上を保持する変数
+        let totalSales = 0;
+
         // --- 3. HTML要素の取得 ---
         const startScreen = document.getElementById("start-screen");
         const gameScreen = document.getElementById("game-screen");
@@ -516,6 +544,8 @@
         
         const startBtn = document.getElementById("start-btn");
         const retryBtn = document.getElementById("retry-btn");
+        const homeBtn = document.getElementById("home-btn");
+        const totalSalesDisplay = document.getElementById("total-sales-display");
         
         const timerElement = document.getElementById("timer");
         const penaltyPopElement = document.getElementById("penalty-pop"); 
@@ -529,13 +559,21 @@
         const shareReceiptBtn = document.getElementById("share-receipt-btn");
         const mobileInput = document.getElementById("mobile-input");
 
+        // --- 累計売上の初期化処理 ---
+        function updateSalesDisplay() {
+            // localStorageから取得、なければ0
+            const savedSales = localStorage.getItem("moccha_total_sales");
+            totalSales = savedSales ? parseInt(savedSales, 10) : 0;
+            totalSalesDisplay.textContent = `￥${totalSales.toLocaleString()}`;
+        }
+        // 起動時にロード
+        updateSalesDisplay();
+
         // --- 4. イベントリスナー ---
         startBtn.addEventListener("click", () => {
-            // 【最重要】ボタンが押された「生のクリックイベント」の瞬間、1番最初にフォーカスを当てる
             if (isMobile) {
                 mobileInput.focus();
             }
-            // その後、AudioContextの初期化(非同期)を行い、完了したらゲームを始める
             loadTypeSound().then(startGame);
         });
         
@@ -543,8 +581,14 @@
             if (isMobile) {
                 mobileInput.focus();
             }
-            // リトライ時はすでにloadTypeSoundが完了しているのでそのままスタート
             startGame();
+        });
+
+        // ホームに戻るボタンのイベント
+        homeBtn.addEventListener("click", () => {
+            resultScreen.classList.add("hidden");
+            startScreen.classList.remove("hidden");
+            updateSalesDisplay(); // 最新の売上を読み込み直して表示
         });
         
         window.addEventListener("keydown", handleKeyDown);
@@ -573,7 +617,7 @@
         function getRomajiVariants(baseRomaji) {
             let variants = [baseRomaji];
             const rules = [
-                { src: "she", dst: "sye" }, // フィナンシェ用バリエーション
+                { src: "she", dst: "sye" }, 
                 { src: "ffu", dst: "hhu" },
                 { src: "cchi", dst: "tti" }, 
                 { src: "cchi", dst: "cci" },
@@ -613,7 +657,6 @@
 
         // --- 5. ゲーム開始処理 ---
         function startGame() {
-            // 開始直後にも念のためフォーカスを維持
             if (isMobile) {
                 mobileInput.focus();
             }
@@ -658,7 +701,7 @@
 
             if (isMobile) {
                 setTimeout(() => {
-                    mobileInput.focus(); // 画面切り替え時の念押し遅延フォーカス
+                    mobileInput.focus(); 
                 }, 150);
             }
         }
@@ -808,6 +851,10 @@
 
             const tax = Math.floor(totalMoney * 0.1);
             const grandTotal = totalMoney + tax; 
+
+            // === 累計売上を更新して保存 ===
+            totalSales += grandTotal;
+            localStorage.setItem("moccha_total_sales", totalSales);
 
             let rankName = "お腹ペコペコ一般人";
             if (grandTotal === 0) rankName = "ただの通行人";
