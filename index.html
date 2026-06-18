@@ -26,7 +26,7 @@
             position: relative;
         }
 
-        /* 背景画像用のレイヤー（JSで切り替えるため独立させます） */
+        /* 背景画像用のレイヤー（ご要望により固定背景。画像がない場合でも崩れないよう色を補修） */
         #bg-layer {
             position: fixed;
             top: 0;
@@ -34,9 +34,9 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+            background-color: #fcedc9;
             background-size: cover;
             background-position: center;
-            transition: background-image 0.5s ease;
         }
 
         h1 {
@@ -195,7 +195,7 @@
                 <div id="next-rank-info">次のランクまで：あと 50,000円</div>
             </div>
 
-            <img src="normal.png" alt="キャラクター" style="width: 120px; margin-bottom: 15px;"><br>
+            <img src="normal.png" alt="キャラクター" style="width: 120px; margin-bottom: 15px;" onerror="this.style.display='none'"><br>
             
             <div>
                 <button id="start-btn" style="margin-bottom: 10px;">注文開始！</button><br>
@@ -218,9 +218,8 @@
 
         <div id="zukan-screen" class="hidden">
             <h2 style="color: #2c3e50;">📖 食べたメニュー図鑑</h2>
-            <div id="zukan-count" style="font-weight: bold; color: #e67e22; font-size: 1.2rem;">収集率: 0 / 106</div>
-            <div id="zukan-grid">
-                </div>
+            <div id="zukan-count" style="font-weight: bold; color: #e67e22; font-size: 1.2rem;">収集率: 0 / 0</div>
+            <div id="zukan-grid"></div>
             <button id="back-home-from-zukan-btn" class="sub-btn" style="background-color: #95a5a6; box-shadow: 0 4px 0 #7f8c8d;">ホームに戻る</button>
         </div>
 
@@ -230,14 +229,14 @@
                 <div id="penalty-pop">-1秒</div>
             </div>
             <div id="combo-container"></div>
-            <img id="character-img" src="normal.png" alt="キャラクター">
+            <img id="character-img" src="normal.png" alt="キャラクター" onerror="this.style.opacity='0'">
             <div id="word-ja">単語（日本語）</div>
             <div id="word-romaji"><span class="typed"></span><span class="untyped">romaji</span></div>
         </div>
 
         <div id="result-screen" class="hidden">
             <h2>🎉 注文終了！ 🎉</h2>
-            <img src="image_1.png" alt="キャラクター" style="width: 120px; margin-bottom: 10px;">
+            <img src="image_1.png" alt="キャラクター" style="width: 120px; margin-bottom: 10px;" onerror="this.style.display='none'">
             <div id="result"></div>
             
             <div style="margin: 15px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
@@ -254,24 +253,23 @@
 
     <script>
         // --- 0. セーブデータとお店ランクの管理 ---
-        // 各段階の1文字あたりの単価と、必要な背景画像を設定します。
         const SHOP_RANKS = [
-            { level: 1, name: "ボロ屋台", reqMoney: 0, pricePerChar: 50, bg: "bg_1.png" },
-            { level: 2, name: "なつかしの大衆食堂", reqMoney: 50000, pricePerChar: 100, bg: "bg_2.png" },
-            { level: 3, name: "おしゃれカフェ", reqMoney: 150000, pricePerChar: 200, bg: "bg_3.png" },
-            { level: 4, name: "三つ星レストラン", reqMoney: 500000, pricePerChar: 500, bg: "bg_4.png" }
+            { level: 1, name: "ボロ屋台", reqMoney: 0, pricePerChar: 50, emoji: "🍔" },
+            { level: 2, name: "なつかしの大衆食堂", reqMoney: 50000, pricePerChar: 100, emoji: "🍱" },
+            { level: 3, name: "おしゃれカフェ", reqMoney: 150000, pricePerChar: 200, emoji: "☕" },
+            { level: 4, name: "三つ星レストラン", reqMoney: 500000, pricePerChar: 500, emoji: "🏰" }
         ];
 
         // ローカルストレージ（ブラウザの保存領域）からデータを読み込む
         let saveData = JSON.parse(localStorage.getItem("mocchaSaveData")) || {
             totalGlobalMoney: 0,
-            eatenMenus: [] // 図鑑用の配列を追加
+            eatenMenus: [] 
         };
         
         let currentRankIndex = 0;
         let currentPricePerChar = 50;
 
-        // ステータスと背景画像を更新する関数
+        // ステータスとメインタイトルを更新する関数
         function updateShopStatus() {
             currentRankIndex = 0;
             for (let i = SHOP_RANKS.length - 1; i >= 0; i--) {
@@ -284,7 +282,10 @@
             const currentRank = SHOP_RANKS[currentRankIndex];
             currentPricePerChar = currentRank.pricePerChar;
 
-            // 画面表示の更新
+            // メインタイトルの店名を現在のランクに合わせて進化（背景画像は変更なし）
+            document.getElementById("main-title").textContent = `${currentRank.emoji} もっちゃもっちゃ食堂 [${currentRank.name}] ${currentRank.emoji}`;
+
+            // ホーム画面のステータス表示更新
             document.getElementById("shop-rank-title").textContent = `ランク：${currentRank.name} (1文字${currentPricePerChar}円)`;
             document.getElementById("global-money-display").textContent = `累計売上：￥${saveData.totalGlobalMoney.toLocaleString()}`;
 
@@ -293,17 +294,20 @@
                 const nextRank = SHOP_RANKS[currentRankIndex + 1];
                 const needMoney = nextRank.reqMoney - saveData.totalGlobalMoney;
                 nextRankInfoElement.textContent = `次の「${nextRank.name}」まで：あと ￥${needMoney.toLocaleString()}`;
+                nextRankInfoElement.style.color = "#7f8c8d";
+                nextRankInfoElement.style.fontWeight = "normal";
             } else {
                 nextRankInfoElement.textContent = "最高ランク到達！これからは君が伝説だ！";
                 nextRankInfoElement.style.color = "#e67e22";
                 nextRankInfoElement.style.fontWeight = "bold";
             }
-
-            // 背景画像の切り替え
-            document.getElementById("bg-layer").style.backgroundImage = `url('${currentRank.bg}')`;
         }
         
-        window.addEventListener("DOMContentLoaded", updateShopStatus);
+        window.addEventListener("DOMContentLoaded", () => {
+            updateShopStatus();
+            // 初期状態で図鑑の総数を表示に反映
+            document.getElementById("zukan-count").textContent = `収集率: ${saveData.eatenMenus.length} / ${wordList.length}`;
+        });
 
         // --- 1. 音声の設定 ---
         const chewSound = new Audio('chew.mp3'); 
@@ -371,6 +375,7 @@
         document.getElementById("back-home-from-zukan-btn").addEventListener("click", () => {
             zukanScreen.classList.add("hidden");
             homeScreen.classList.remove("hidden");
+            updateShopStatus();
         });
 
         window.addEventListener("keydown", handleKeyDown);
@@ -406,8 +411,10 @@
             isPlaying = true; timeLeft = 60; solvedWordCount = 0; totalCharCount = 0; playTotalMoney = 0; missCount = 0; comboCount = 0; maxComboCount = 0; orderHistory = [];
             remainingWords = [...wordList];
 
+            // 画面表示の切り替えを確実に行う
             homeScreen.classList.add("hidden");
             resultScreen.classList.add("hidden");
+            zukanScreen.classList.add("hidden");
             gameScreen.classList.remove("hidden");
             document.body.classList.add("ingame");
 
@@ -419,8 +426,12 @@
             bgmSound.currentTime = 0; bgmSound.play().catch(e => {});
 
             document.getElementById("timer").textContent = `残り時間: ${timeLeft} 秒`;
+            
+            if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
-                timeLeft--; document.getElementById("timer").textContent = `残り時間: ${timeLeft} 秒`;
+                timeLeft--; 
+                if (timeLeft < 0) timeLeft = 0;
+                document.getElementById("timer").textContent = `残り時間: ${timeLeft} 秒`;
                 if (timeLeft <= 0) endGame();
             }, 1000);
 
@@ -471,12 +482,12 @@
 
                 if (typedBuffer === displayRomaji) {
                     solvedWordCount++;
-                    // 単価の計算（1文字の値段 × 文字数）
+                    // 単価の計算（1文字の値段 × タイピングした文字数）
                     const wordPrice = displayRomaji.length * currentPricePerChar;
                     playTotalMoney += wordPrice;
                     orderHistory.push({ name: currentWord.ja, price: wordPrice });
                     
-                    // 図鑑に登録されていなければ追加
+                    // 図鑑に登録されていなければ追加（自動解放）
                     if (!saveData.eatenMenus.includes(currentWord.ja)) {
                         saveData.eatenMenus.push(currentWord.ja);
                     }
@@ -549,13 +560,13 @@
             bgmSound.pause(); gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; document.body.classList.remove("ingame");
             cashSound.currentTime = 0; cashSound.play().catch(e => {});
 
-            gameScreen.classList.add("hidden"); resultScreen.removeAttribute("hidden"); resultScreen.classList.remove("hidden");
+            gameScreen.classList.add("hidden"); resultScreen.classList.remove("hidden");
             if (isMobile) mobileInput.blur();
 
             const tax = Math.floor(playTotalMoney * 0.1);
             const grandTotal = playTotalMoney + tax; 
 
-            // 累計売上と図鑑データを保存！
+            // 累計売上と図鑑データを即時保存！
             saveData.totalGlobalMoney += grandTotal;
             localStorage.setItem("mocchaSaveData", JSON.stringify(saveData));
 
@@ -571,6 +582,7 @@
             orderHistory.forEach(item => { receiptItemsHtml += `<div class="receipt-row"><span>・${item.name}</span><span>￥${item.price.toLocaleString()}</span></div>`; });
             if (orderHistory.length === 0) receiptItemsHtml = `<div class="receipt-row" style="color:#7f8c8d;"><span>（何も食べられませんでした）</span></div>`;
 
+            // 今回のプレイ結果を表示しつつ、進化後の累計売上を反映
             document.getElementById("result").innerHTML = `
                 <div class="receipt" id="receipt-box">
                     <div class="receipt-title">もっちゃもっちゃ食堂</div>
@@ -590,6 +602,9 @@
                 <p style="font-size:1rem; font-weight:bold; color:#4a3728; margin-bottom: 0;">合計 ${totalCharCount} 文字タイピング！（ミス: ${missCount}回）</p>
                 <p style="font-size:1.1rem; font-weight:bold; color:#d35400; margin-top: 5px;">💰 累計売上：￥${saveData.totalGlobalMoney.toLocaleString()} になりました！</p>
             `;
+
+            // リザルト画面でもタイトル店名を最新状態に合わせる
+            updateShopStatus();
 
             document.getElementById("save-receipt-btn").onclick = function() {
                 const target = document.getElementById("receipt-box"), list = document.getElementById("receipt-list"), originalMaxHeight = list.style.maxHeight;
