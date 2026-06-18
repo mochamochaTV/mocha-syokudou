@@ -14,7 +14,6 @@
     <title>もっちゃもっちゃ食堂</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* === 通常時のスタイル === */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             color: #4a3728;
@@ -27,17 +26,17 @@
             position: relative;
         }
 
-        body::before {
-            content: "";
+        /* 背景画像用のレイヤー（JSで切り替えるため独立させます） */
+        #bg-layer {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            background-image: url('bg.png');
             background-size: cover;
             background-position: center;
+            transition: background-image 0.5s ease;
         }
 
         h1 {
@@ -75,7 +74,7 @@
             position: relative;
         }
 
-        /* --- セーブデータ表示用デザイン --- */
+        /* --- ホーム画面（ステータス） --- */
         #shop-status-box {
             background-color: #fff;
             border: 2px dashed #f39c12;
@@ -84,114 +83,65 @@
             margin-bottom: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        #shop-rank-title {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #d35400;
-            margin-bottom: 5px;
-        }
-        #global-money-display {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        #next-rank-info {
-            font-size: 0.85rem;
-            color: #7f8c8d;
-            margin-top: 5px;
-        }
+        #shop-rank-title { font-size: 1.4rem; font-weight: bold; color: #d35400; margin-bottom: 5px; }
+        #global-money-display { font-size: 1.1rem; font-weight: bold; color: #2c3e50; }
+        #next-rank-info { font-size: 0.85rem; color: #7f8c8d; margin-top: 5px; }
 
-        #timer {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #e74c3c;
-            display: inline-block;
+        /* --- 図鑑画面 --- */
+        #zukan-screen {
+            text-align: center;
         }
+        #zukan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        .zukan-item {
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+        }
+        .zukan-item.unlocked { background-color: #f39c12; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .zukan-item.locked { background-color: #bdc3c7; color: #7f8c8d; border: 1px dashed #95a5a6; }
 
+        #timer { font-size: 1.5rem; font-weight: bold; color: #e74c3c; display: inline-block; }
         .shake-animation { animation: shake 0.15s ease-in-out 2; }
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-6px); }
-            75% { transform: translateX(6px); }
-            100% { transform: translateX(0); }
-        }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } 100% { transform: translateX(0); } }
 
-        #penalty-pop {
-            position: absolute;
-            right: -65px;
-            top: 0;
-            color: #e74c3c;
-            font-weight: bold;
-            font-size: 1.5rem;
-            display: none;
-        }
+        #penalty-pop { position: absolute; right: -65px; top: 0; color: #e74c3c; font-weight: bold; font-size: 1.5rem; display: none; }
+        .popup-animation { display: block !important; animation: popUp 0.6s ease-out forwards; }
+        @keyframes popUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
 
-        .popup-animation {
-            display: block !important;
-            animation: popUp 0.6s ease-out forwards;
-        }
-        @keyframes popUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-30px); opacity: 0; }
-        }
+        #combo-container { font-size: 1.8rem; font-weight: 900; color: #f39c12; height: 35px; margin-bottom: 10px; text-shadow: 1px 1px 0 #fff; transform: scale(1); transition: transform 0.1s ease; }
+        .combo-pop { animation: comboKey 0.1s ease-out; color: #e67e22 !important; }
+        @keyframes comboKey { 0% { transform: scale(1.4); } 100% { transform: scale(1); } }
 
-        #combo-container {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: #f39c12;
-            height: 35px;
-            margin-bottom: 10px;
-            text-shadow: 1px 1px 0 #fff;
-            transform: scale(1);
-            transition: transform 0.1s ease;
-        }
-        .combo-pop {
-            animation: comboKey 0.1s ease-out;
-            color: #e67e22 !important;
-        }
-        @keyframes comboKey {
-            0% { transform: scale(1.4); }
-            100% { transform: scale(1); }
-        }
-
-        #character-img {
-            width: 140px;
-            height: auto;
-            margin-bottom: 10px;
-            transition: transform 0.1s ease;
-        }
-
-        #word-ja {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            letter-spacing: 2px;
-        }
-
-        #word-romaji {
-            font-size: 2.2rem;
-            font-family: 'Courier New', Courier, monospace;
-            letter-spacing: 3px;
-            margin-bottom: 25px;
-            word-break: break-all;
-            display: inline-block;
-            width: 100%;
-        }
+        #character-img { width: 140px; height: auto; margin-bottom: 10px; transition: transform 0.1s ease; }
+        #word-ja { font-size: 2.5rem; font-weight: bold; margin-bottom: 5px; letter-spacing: 2px; }
+        #word-romaji { font-size: 2.2rem; font-family: 'Courier New', Courier, monospace; letter-spacing: 3px; margin-bottom: 25px; word-break: break-all; display: inline-block; width: 100%; }
 
         .bounce-effect { animation: typeBounce 0.08s ease-out; }
-        @keyframes typeBounce {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05) translateY(-3px); }
-            100% { transform: scale(1); }
-        }
-
+        @keyframes typeBounce { 0% { transform: scale(1); } 50% { transform: scale(1.05) translateY(-3px); } 100% { transform: scale(1); } }
         .typed { color: #27ae60; border-bottom: 3px solid #27ae60; font-weight: bold; text-shadow: 0 0 5px rgba(39, 174, 96, 0.3); }
         .untyped { color: #7f8c8d; }
 
-        button { font-size: 1.5rem; padding: 12px 30px; background-color: #f39c12; color: white; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 5px 0 #d35400; font-weight: bold; }
+        button { font-size: 1.5rem; padding: 12px 30px; background-color: #f39c12; color: white; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 5px 0 #d35400; font-weight: bold; margin: 5px; }
         button:active { transform: translateY(5px); box-shadow: none; }
         .sub-btn { font-size: 1.1rem; padding: 10px 20px; border-radius: 8px; }
-        .hidden { display: none; }
+        .action-btn { background-color: #2ecc71; box-shadow: 0 5px 0 #27ae60; }
+        .hidden { display: none !important; }
+        
         .credit-box { margin-top: 25px; padding-top: 15px; border-top: 1px dashed #bdc3c7; font-size: 0.8rem; color: #7f8c8d; line-height: 1.5; }
         .credit-box a { color: #e67e22; text-decoration: none; font-weight: bold; }
         
@@ -205,7 +155,6 @@
 
         #mobile-input { position: fixed; left: 50%; top: 40%; transform: translateX(-50%); opacity: 0; width: 100px; height: 30px; font-size: 16px; z-index: -1; border: none; background: transparent; }
 
-        /* === スマホ専用の自動調整 === */
         @media (max-width: 480px) {
             body { padding: 15px 10px; }
             h1 { font-size: 1.8rem; padding: 6px 20px; margin-bottom: 8px; }
@@ -230,6 +179,8 @@
 </head>
 <body>
 
+    <div id="bg-layer"></div>
+
     <h1 id="main-title">🍔 もっちゃもっちゃ食堂 🍰</h1>
     <div class="subtitle">〜 1分間でたくさん食べて、売り上げを伸ばそう！ 〜</div>
 
@@ -237,8 +188,7 @@
 
     <div class="container" id="game-container">
         
-        <div id="start-screen">
-            
+        <div id="home-screen">
             <div id="shop-status-box">
                 <div id="shop-rank-title">ランク：ボロ屋台</div>
                 <div id="global-money-display">累計売上：0円</div>
@@ -246,7 +196,11 @@
             </div>
 
             <img src="normal.png" alt="キャラクター" style="width: 120px; margin-bottom: 15px;"><br>
-            <button id="start-btn" style="margin-bottom: 20px;">注文開始！</button>
+            
+            <div>
+                <button id="start-btn" style="margin-bottom: 10px;">注文開始！</button><br>
+                <button id="zukan-btn" class="action-btn" style="margin-bottom: 20px; font-size: 1.2rem;">📖 メニュー図鑑</button>
+            </div>
             
             <div style="font-size: 0.8rem; color: #7f8c8d; line-height: 1.5; max-width: 420px; margin: 0 auto; text-align: left; background: rgba(255,255,255,0.6); padding: 12px; border-radius: 10px;">
                 <b>【スマホ・Simejiで遊ぶ方へ】</b><br>
@@ -262,57 +216,63 @@
             </div>
         </div>
 
+        <div id="zukan-screen" class="hidden">
+            <h2 style="color: #2c3e50;">📖 食べたメニュー図鑑</h2>
+            <div id="zukan-count" style="font-weight: bold; color: #e67e22; font-size: 1.2rem;">収集率: 0 / 106</div>
+            <div id="zukan-grid">
+                </div>
+            <button id="back-home-from-zukan-btn" class="sub-btn" style="background-color: #95a5a6; box-shadow: 0 4px 0 #7f8c8d;">ホームに戻る</button>
+        </div>
+
         <div id="game-screen" class="hidden">
             <div id="timer-container" style="position: relative; width: max-content; margin: 0 auto 5px auto;">
                 <div id="timer">残り時間: 60 秒</div>
                 <div id="penalty-pop">-1秒</div>
             </div>
-
             <div id="combo-container"></div>
-            
             <img id="character-img" src="normal.png" alt="キャラクター">
-            
             <div id="word-ja">単語（日本語）</div>
-            <div id="word-romaji">
-                <span class="typed"></span><span class="untyped">romaji</span>
-            </div>
+            <div id="word-romaji"><span class="typed"></span><span class="untyped">romaji</span></div>
         </div>
 
         <div id="result-screen" class="hidden">
             <h2>🎉 注文終了！ 🎉</h2>
             <img src="image_1.png" alt="キャラクター" style="width: 120px; margin-bottom: 10px;">
-            
             <div id="result"></div>
             
             <div style="margin: 15px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                <button id="save-receipt-btn" class="sub-btn" style="background-color: #34495e; box-shadow: 0 4px 0 #2c3e50;">🧾 レシートを保存</button>
+                <button id="save-receipt-btn" class="sub-btn" style="background-color: #34495e; box-shadow: 0 4px 0 #2c3e50;">🧾 レシート保存</button>
                 <button id="share-receipt-btn" class="sub-btn" style="background-color: #1da1f2; box-shadow: 0 4px 0 #0d8ddb;">📢 記録を共有</button>
             </div>
             
-            <button id="retry-btn" style="margin-top: 15px;">お店に戻る</button>
+            <div>
+                <button id="retry-btn">もう一度挑戦！</button><br>
+                <button id="home-btn" class="sub-btn" style="background-color: #95a5a6; box-shadow: 0 4px 0 #7f8c8d; margin-top: 10px;">ホームに戻る</button>
+            </div>
         </div>
     </div>
 
     <script>
         // --- 0. セーブデータとお店ランクの管理 ---
+        // 各段階の1文字あたりの単価と、必要な背景画像を設定します。
         const SHOP_RANKS = [
-            { level: 1, name: "ボロ屋台", reqMoney: 0, multiplier: 1.0 },       // 1文字 100円
-            { level: 2, name: "なつかしの大衆食堂", reqMoney: 50000, multiplier: 1.5 }, // 1文字 150円
-            { level: 3, name: "おしゃれカフェ", reqMoney: 150000, multiplier: 2.5 },   // 1文字 250円
-            { level: 4, name: "三つ星レストラン", reqMoney: 500000, multiplier: 5.0 }  // 1文字 500円
+            { level: 1, name: "ボロ屋台", reqMoney: 0, pricePerChar: 50, bg: "bg_1.png" },
+            { level: 2, name: "なつかしの大衆食堂", reqMoney: 50000, pricePerChar: 100, bg: "bg_2.png" },
+            { level: 3, name: "おしゃれカフェ", reqMoney: 150000, pricePerChar: 200, bg: "bg_3.png" },
+            { level: 4, name: "三つ星レストラン", reqMoney: 500000, pricePerChar: 500, bg: "bg_4.png" }
         ];
 
-        // ローカルストレージからデータを読み込む（なければ初期値）
+        // ローカルストレージ（ブラウザの保存領域）からデータを読み込む
         let saveData = JSON.parse(localStorage.getItem("mocchaSaveData")) || {
-            totalGlobalMoney: 0
+            totalGlobalMoney: 0,
+            eatenMenus: [] // 図鑑用の配列を追加
         };
         
         let currentRankIndex = 0;
-        let currentMultiplier = 1.0;
+        let currentPricePerChar = 50;
 
-        // お店のステータスを計算して画面を更新する関数
+        // ステータスと背景画像を更新する関数
         function updateShopStatus() {
-            // 現在の累計売上に合わせたランクを判定
             currentRankIndex = 0;
             for (let i = SHOP_RANKS.length - 1; i >= 0; i--) {
                 if (saveData.totalGlobalMoney >= SHOP_RANKS[i].reqMoney) {
@@ -322,10 +282,10 @@
             }
             
             const currentRank = SHOP_RANKS[currentRankIndex];
-            currentMultiplier = currentRank.multiplier;
+            currentPricePerChar = currentRank.pricePerChar;
 
-            // 画面の表示を更新
-            document.getElementById("shop-rank-title").textContent = `ランク：${currentRank.name}`;
+            // 画面表示の更新
+            document.getElementById("shop-rank-title").textContent = `ランク：${currentRank.name} (1文字${currentPricePerChar}円)`;
             document.getElementById("global-money-display").textContent = `累計売上：￥${saveData.totalGlobalMoney.toLocaleString()}`;
 
             const nextRankInfoElement = document.getElementById("next-rank-info");
@@ -338,71 +298,49 @@
                 nextRankInfoElement.style.color = "#e67e22";
                 nextRankInfoElement.style.fontWeight = "bold";
             }
+
+            // 背景画像の切り替え
+            document.getElementById("bg-layer").style.backgroundImage = `url('${currentRank.bg}')`;
         }
         
-        // ページ読み込み時にステータスを反映
         window.addEventListener("DOMContentLoaded", updateShopStatus);
 
         // --- 1. 音声の設定 ---
         const chewSound = new Audio('chew.mp3'); 
-        const bgmSound = new Audio('bgm.mp3');
-        bgmSound.loop = true;
-        bgmSound.volume = 0.4;
+        const bgmSound = new Audio('bgm.mp3'); bgmSound.loop = true; bgmSound.volume = 0.4;
         const cashSound = new Audio('cash.mp3');
-        const shoutSound = new Audio('shout.mp3'); 
-        shoutSound.volume = 0.6; 
-
-        let audioCtx = null;
-        let typeAudioBuffer = null;
+        const shoutSound = new Audio('shout.mp3'); shoutSound.volume = 0.6; 
+        let audioCtx = null, typeAudioBuffer = null;
 
         async function loadTypeSound() {
             if (audioCtx) return;
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const response = await fetch('type.mp3');
-                const arrayBuffer = await response.arrayBuffer();
-                typeAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-            } catch (e) { console.log("オーディオの先読みエラー:", e); }
+                typeAudioBuffer = await audioCtx.decodeAudioData(await (await fetch('type.mp3')).arrayBuffer());
+            } catch (e) { console.log(e); }
         }
 
         function playBoostedTypeSound() {
             if (!audioCtx || !typeAudioBuffer) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const source = audioCtx.createBufferSource();
-            source.buffer = typeAudioBuffer;
-            const gainNode = audioCtx.createGain();
-            gainNode.gain.value = 1.2;
-            source.playbackRate.value = 1.0; 
-            source.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            source.start(0);
-            source.onended = () => { source.disconnect(); gainNode.disconnect(); };
+            const source = audioCtx.createBufferSource(), gainNode = audioCtx.createGain();
+            source.buffer = typeAudioBuffer; gainNode.gain.value = 1.2;
+            source.connect(gainNode); gainNode.connect(audioCtx.destination);
+            source.start(0); source.onended = () => { source.disconnect(); gainNode.disconnect(); };
         }
 
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         // --- 2. ゲーム状態 ---
-        let remainingWords = [];
-        let currentWord = {};
-        let typedBuffer = "";       
-        let displayRomaji = "";     
-        let timeLeft = 60;
-        let timerInterval = null;
-        let isPlaying = false;
-        let mouthOpenTimeout = null;
+        let remainingWords = [], currentWord = {}, typedBuffer = "", displayRomaji = "";
+        let timeLeft = 60, timerInterval = null, isPlaying = false, mouthOpenTimeout = null;
+        let solvedWordCount = 0, totalCharCount = 0, playTotalMoney = 0, missCount = 0, orderHistory = [], comboCount = 0, maxComboCount = 0;
 
-        let solvedWordCount = 0;
-        let totalCharCount = 0;
-        let playTotalMoney = 0; // 1プレイの売上
-        let missCount = 0; 
-        let orderHistory = []; 
-        let comboCount = 0;
-        let maxComboCount = 0;
-
-        // --- 3. HTML要素の取得 ---
-        const startScreen = document.getElementById("start-screen");
+        // --- 3. HTML要素の取得とイベント ---
+        const homeScreen = document.getElementById("home-screen");
         const gameScreen = document.getElementById("game-screen");
         const resultScreen = document.getElementById("result-screen");
+        const zukanScreen = document.getElementById("zukan-screen");
         const gameContainer = document.getElementById("game-container");
         const mobileInput = document.getElementById("mobile-input");
 
@@ -412,54 +350,52 @@
         });
         
         document.getElementById("retry-btn").addEventListener("click", () => {
-            // リトライ（お店に戻る）ボタンでスタート画面に戻り、ステータスを再確認させる
+            if (isMobile) mobileInput.focus();
+            startGame();
+        });
+
+        document.getElementById("home-btn").addEventListener("click", () => {
             resultScreen.classList.add("hidden");
-            startScreen.classList.remove("hidden");
+            homeScreen.classList.remove("hidden");
             updateShopStatus();
         });
-        
-        window.addEventListener("keydown", handleKeyDown);
 
-        mobileInput.addEventListener("input", (event) => {
+        // 図鑑を開く
+        document.getElementById("zukan-btn").addEventListener("click", () => {
+            homeScreen.classList.add("hidden");
+            zukanScreen.classList.remove("hidden");
+            renderZukan();
+        });
+
+        // 図鑑からホームに戻る
+        document.getElementById("back-home-from-zukan-btn").addEventListener("click", () => {
+            zukanScreen.classList.add("hidden");
+            homeScreen.classList.remove("hidden");
+        });
+
+        window.addEventListener("keydown", handleKeyDown);
+        mobileInput.addEventListener("input", (e) => {
             if (!isMobile || !isPlaying) { mobileInput.value = ""; return; }
-            let char = event.data;
-            if (!char && mobileInput.value.length > 0) char = mobileInput.value.slice(-1);
+            let char = e.data || (mobileInput.value.length > 0 ? mobileInput.value.slice(-1) : "");
             if (char) handleCharInput(char);
             mobileInput.value = "";
         });
-
-        gameContainer.addEventListener("click", () => {
-            if (isPlaying && isMobile) mobileInput.focus();
-        });
+        gameContainer.addEventListener("click", () => { if (isPlaying && isMobile) mobileInput.focus(); });
 
         function getRomajiVariants(baseRomaji) {
-            let variants = [baseRomaji];
-            const rules = [
-                { src: "she", dst: "sye" },
-                { src: "ffu", dst: "hhu" },
-                { src: "cchi", dst: "tti" }, { src: "cchi", dst: "cci" },
-                { src: "chi", dst: "ti" }, { src: "chi", dst: "ci" },
-                { src: "shi", dst: "si" }, { src: "tsu", dst: "tu" },
-                { src: "fu", dst: "hu" }, { src: "ji", dst: "zi" },
-                { src: "cha", dst: "tya" }, { src: "chu", dst: "tyu" },
-                { src: "cho", dst: "tyo" }, { src: "sha", dst: "sya" },
-                { src: "shu", dst: "syu" }, { src: "sho", dst: "syo" },
-                { src: "ja", dst: "zya" }, { src: "ju", dst: "zyu" },
-                { src: "jo", dst: "zyo" }    
+            let variants = [baseRomaji], rules = [
+                { src: "she", dst: "sye" }, { src: "ffu", dst: "hhu" }, { src: "cchi", dst: "tti" }, { src: "cchi", dst: "cci" },
+                { src: "chi", dst: "ti" }, { src: "chi", dst: "ci" }, { src: "shi", dst: "si" }, { src: "tsu", dst: "tu" },
+                { src: "fu", dst: "hu" }, { src: "ji", dst: "zi" }, { src: "cha", dst: "tya" }, { src: "chu", dst: "tyu" },
+                { src: "cho", dst: "tyo" }, { src: "sha", dst: "sya" }, { src: "shu", dst: "syu" }, { src: "sho", dst: "syo" },
+                { src: "ja", dst: "zya" }, { src: "ju", dst: "zyu" }, { src: "jo", dst: "zyo" }
             ];
-            let queue = [baseRomaji];
-            let visited = new Set(queue);
+            let queue = [baseRomaji], visited = new Set(queue);
             while(queue.length > 0) {
                 let curr = queue.shift();
-                for (let rule of rules) {
-                    if (curr.includes(rule.src)) {
-                        let next = curr.replace(new RegExp(rule.src, 'g'), rule.dst);
-                        if (!visited.has(next)) { visited.add(next); queue.push(next); }
-                    }
-                    if (curr.includes(rule.dst)) {
-                        let next = curr.replace(new RegExp(rule.dst, 'g'), rule.src);
-                        if (!visited.has(next)) { visited.add(next); queue.push(next); }
-                    }
+                for (let r of rules) {
+                    if (curr.includes(r.src)) { let n = curr.replace(new RegExp(r.src, 'g'), r.dst); if (!visited.has(n)) { visited.add(n); queue.push(n); } }
+                    if (curr.includes(r.dst)) { let n = curr.replace(new RegExp(r.dst, 'g'), r.src); if (!visited.has(n)) { visited.add(n); queue.push(n); } }
                 }
             }
             return Array.from(visited);
@@ -467,20 +403,10 @@
 
         // --- 5. ゲーム開始 ---
         function startGame() {
-            if (isMobile) mobileInput.focus();
-
-            isPlaying = true;
-            timeLeft = 60;
-            solvedWordCount = 0;
-            totalCharCount = 0;
-            playTotalMoney = 0; 
-            missCount = 0; 
-            comboCount = 0;     
-            maxComboCount = 0;  
-            orderHistory = []; 
+            isPlaying = true; timeLeft = 60; solvedWordCount = 0; totalCharCount = 0; playTotalMoney = 0; missCount = 0; comboCount = 0; maxComboCount = 0; orderHistory = [];
             remainingWords = [...wordList];
 
-            startScreen.classList.add("hidden");
+            homeScreen.classList.add("hidden");
             resultScreen.classList.add("hidden");
             gameScreen.classList.remove("hidden");
             document.body.classList.add("ingame");
@@ -490,21 +416,16 @@
             document.getElementById("combo-container").textContent = ""; 
             resetCharacterImg();
 
-            bgmSound.currentTime = 0;
-            bgmSound.play().catch(e => console.log(e));
+            bgmSound.currentTime = 0; bgmSound.play().catch(e => {});
 
             document.getElementById("timer").textContent = `残り時間: ${timeLeft} 秒`;
             timerInterval = setInterval(() => {
-                timeLeft--;
-                document.getElementById("timer").textContent = `残り時間: ${timeLeft} 秒`;
+                timeLeft--; document.getElementById("timer").textContent = `残り時間: ${timeLeft} 秒`;
                 if (timeLeft <= 0) endGame();
             }, 1000);
 
             nextWord();
-
-            if (isMobile) {
-                setTimeout(() => { mobileInput.focus(); }, 150);
-            }
+            if (isMobile) setTimeout(() => { mobileInput.focus(); }, 150);
         }
 
         function nextWord() {
@@ -518,15 +439,12 @@
         }
 
         function updateRomajiDisplay() {
-            document.getElementById("word-romaji").innerHTML = `
-                <span class="typed">${displayRomaji.substring(0, typedBuffer.length)}</span><span class="untyped">${displayRomaji.substring(typedBuffer.length)}</span>
-            `;
+            document.getElementById("word-romaji").innerHTML = `<span class="typed">${displayRomaji.substring(0, typedBuffer.length)}</span><span class="untyped">${displayRomaji.substring(typedBuffer.length)}</span>`;
         }
 
         // --- 8. 入力判定 ---
         function handleCharInput(char) {
             if (!isPlaying) return;
-
             let inputChar = char.toLowerCase();
             if (inputChar === '.') inputChar = '-';
             if (!/[a-z\-]/.test(inputChar)) return; 
@@ -535,74 +453,57 @@
             const matchingVariants = currentWord.variants.filter(v => v.startsWith(nextBuffer));
 
             if (matchingVariants.length > 0) {
-                typedBuffer = nextBuffer;
-                totalCharCount++;
-                comboCount++;
+                typedBuffer = nextBuffer; totalCharCount++; comboCount++;
                 if (comboCount > maxComboCount) maxComboCount = comboCount;
 
                 const comboContainer = document.getElementById("combo-container");
                 if (comboCount >= 3) {
                     comboContainer.textContent = `${comboCount} Combo!`;
-                    comboContainer.classList.remove("combo-pop");
-                    void comboContainer.offsetWidth; 
-                    comboContainer.classList.add("combo-pop");
-                } else {
-                    comboContainer.textContent = "";
-                }
+                    comboContainer.classList.remove("combo-pop"); void comboContainer.offsetWidth; comboContainer.classList.add("combo-pop");
+                } else { comboContainer.textContent = ""; }
 
                 const romajiEl = document.getElementById("word-romaji");
-                romajiEl.classList.remove("bounce-effect");
-                void romajiEl.offsetWidth; 
-                romajiEl.classList.add("bounce-effect");
+                romajiEl.classList.remove("bounce-effect"); void romajiEl.offsetWidth; romajiEl.classList.add("bounce-effect");
 
                 playBoostedTypeSound();
-
                 if (!displayRomaji.startsWith(typedBuffer)) displayRomaji = matchingVariants[0];
                 updateRomajiDisplay();
 
                 if (typedBuffer === displayRomaji) {
                     solvedWordCount++;
-                    // 【変更点】文字数 × 100円 × 現在の倍率（ランク恩恵）
-                    const wordPrice = Math.floor(displayRomaji.length * 100 * currentMultiplier);
+                    // 単価の計算（1文字の値段 × 文字数）
+                    const wordPrice = displayRomaji.length * currentPricePerChar;
                     playTotalMoney += wordPrice;
                     orderHistory.push({ name: currentWord.ja, price: wordPrice });
                     
-                    chewSound.currentTime = 0;
-                    chewSound.play().catch(e => {});
-
+                    // 図鑑に登録されていなければ追加
+                    if (!saveData.eatenMenus.includes(currentWord.ja)) {
+                        saveData.eatenMenus.push(currentWord.ja);
+                    }
+                    
+                    chewSound.currentTime = 0; chewSound.play().catch(e => {});
                     const charImg = document.getElementById("character-img");
-                    charImg.src = 'image_1.png'; 
-                    charImg.style.transform = 'scale(1.1)';
+                    charImg.src = 'image_1.png'; charImg.style.transform = 'scale(1.1)';
                     if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
                     mouthOpenTimeout = setTimeout(resetCharacterImg, 1500);
-
                     nextWord();
                 }
             } else {
-                missCount++;
-                comboCount = 0; 
-                document.getElementById("combo-container").textContent = "";
-                
-                timeLeft = Math.max(0, timeLeft - 1);
-                document.getElementById("timer").textContent = `残り時間: ${timeLeft} 秒`;
+                missCount++; comboCount = 0; document.getElementById("combo-container").textContent = "";
+                timeLeft = Math.max(0, timeLeft - 1); document.getElementById("timer").textContent = `残り時間: ${timeLeft} 秒`;
                 
                 const penalty = document.getElementById("penalty-pop");
-                penalty.classList.remove("popup-animation");
-                void penalty.offsetWidth; 
-                penalty.classList.add("popup-animation");
+                penalty.classList.remove("popup-animation"); void penalty.offsetWidth; penalty.classList.add("popup-animation");
                 
                 const timerEl = document.getElementById("timer");
-                timerEl.classList.remove("shake-animation");
-                void timerEl.offsetWidth;
-                timerEl.classList.add("shake-animation");
+                timerEl.classList.remove("shake-animation"); void timerEl.offsetWidth; timerEl.classList.add("shake-animation");
                 
                 gameContainer.style.backgroundColor = "rgba(255, 200, 200, 0.95)";
                 setTimeout(() => { if (isPlaying) gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; }, 100);
 
                 shoutSound.cloneNode(true).play().catch(e => {});
                 const charImg = document.getElementById("character-img");
-                charImg.src = 'shout.png';
-                charImg.style.transform = 'scale(1.1)';
+                charImg.src = 'shout.png'; charImg.style.transform = 'scale(1.1)';
                 if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
                 mouthOpenTimeout = setTimeout(resetCharacterImg, 1000);
             }
@@ -617,36 +518,47 @@
 
         function resetCharacterImg() {
             const charImg = document.getElementById("character-img");
-            charImg.src = 'normal.png';
-            charImg.style.transform = 'scale(1)';
+            charImg.src = 'normal.png'; charImg.style.transform = 'scale(1)';
+        }
+
+        // --- 図鑑の描画処理 ---
+        function renderZukan() {
+            const grid = document.getElementById("zukan-grid");
+            grid.innerHTML = "";
+            let unlockedCount = 0;
+
+            wordList.forEach(w => {
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "zukan-item";
+                if (saveData.eatenMenus.includes(w.ja)) {
+                    itemDiv.textContent = w.ja;
+                    itemDiv.classList.add("unlocked");
+                    unlockedCount++;
+                } else {
+                    itemDiv.textContent = "???";
+                    itemDiv.classList.add("locked");
+                }
+                grid.appendChild(itemDiv);
+            });
+            document.getElementById("zukan-count").textContent = `収集率: ${unlockedCount} / ${wordList.length}`;
         }
 
         // --- 9. ゲーム終了・セーブ処理 ---
         function endGame() {
-            isPlaying = false;
-            clearInterval(timerInterval);
-            if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
+            isPlaying = false; clearInterval(timerInterval); if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
+            bgmSound.pause(); gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; document.body.classList.remove("ingame");
+            cashSound.currentTime = 0; cashSound.play().catch(e => {});
 
-            bgmSound.pause();
-            gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; 
-            document.body.classList.remove("ingame");
-            cashSound.currentTime = 0;
-            cashSound.play().catch(e => {});
-
-            gameScreen.classList.add("hidden");
-            resultScreen.removeAttribute("hidden");
-            resultScreen.classList.remove("hidden");
+            gameScreen.classList.add("hidden"); resultScreen.removeAttribute("hidden"); resultScreen.classList.remove("hidden");
             if (isMobile) mobileInput.blur();
 
-            // 売上の計算とセーブ
             const tax = Math.floor(playTotalMoney * 0.1);
             const grandTotal = playTotalMoney + tax; 
 
-            // 累計売上を加算してローカルストレージに保存！
+            // 累計売上と図鑑データを保存！
             saveData.totalGlobalMoney += grandTotal;
             localStorage.setItem("mocchaSaveData", JSON.stringify(saveData));
 
-            // 今回の称号計算（ランクアップ用ではなく、今回の腕前評価）
             let rankName = "お腹ペコペコ一般人";
             if (grandTotal === 0) rankName = "ただの通行人";
             else if (grandTotal <= 4000) rankName = "ちょい食いお馴染みさん";
@@ -654,13 +566,9 @@
             else if (grandTotal <= 16000) rankName = "精鋭フードファイター";
             else rankName = "伝説のもっちゃもっちゃ隊";
 
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-
+            const now = new Date(), dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
             let receiptItemsHtml = "";
-            orderHistory.forEach(item => {
-                receiptItemsHtml += `<div class="receipt-row"><span>・${item.name}</span><span>￥${item.price.toLocaleString()}</span></div>`;
-            });
+            orderHistory.forEach(item => { receiptItemsHtml += `<div class="receipt-row"><span>・${item.name}</span><span>￥${item.price.toLocaleString()}</span></div>`; });
             if (orderHistory.length === 0) receiptItemsHtml = `<div class="receipt-row" style="color:#7f8c8d;"><span>（何も食べられませんでした）</span></div>`;
 
             document.getElementById("result").innerHTML = `
@@ -684,40 +592,23 @@
             `;
 
             document.getElementById("save-receipt-btn").onclick = function() {
-                const target = document.getElementById("receipt-box");
-                const list = document.getElementById("receipt-list");
-                const originalMaxHeight = list.style.maxHeight;
+                const target = document.getElementById("receipt-box"), list = document.getElementById("receipt-list"), originalMaxHeight = list.style.maxHeight;
                 list.style.maxHeight = "none";
                 html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
                     list.style.maxHeight = originalMaxHeight;
-                    const link = document.createElement("a");
-                    link.download = `moccha_shokudo_receipt.png`;
-                    link.href = canvas.toDataURL("image/png");
-                    link.click();
+                    const link = document.createElement("a"); link.download = `moccha_shokudo_receipt.png`; link.href = canvas.toDataURL("image/png"); link.click();
                 });
             };
 
             document.getElementById("share-receipt-btn").onclick = async function() {
-                const target = document.getElementById("receipt-box");
-                const list = document.getElementById("receipt-list");
-                const originalMaxHeight = list.style.maxHeight;
+                const target = document.getElementById("receipt-box"), list = document.getElementById("receipt-list"), originalMaxHeight = list.style.maxHeight;
                 list.style.maxHeight = "none";
                 try {
-                    const canvas = await html2canvas(target, { scale: 2, backgroundColor: "#ffffff" });
-                    list.style.maxHeight = originalMaxHeight;
-                    const dataUrl = canvas.toDataURL("image/png");
-                    const blob = await (await fetch(dataUrl)).blob();
-                    const file = new File([blob], 'receipt.png', { type: 'image/png' });
-                    const shareData = {
-                        title: 'もっちゃもっちゃ食堂',
-                        text: `もっちゃもっちゃ食堂の今日の売上は【${grandTotal.toLocaleString()}円】！お店の累計売上は【${saveData.totalGlobalMoney.toLocaleString()}円】を突破！ #もっちゃもっちゃ食堂`,
-                    };
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        shareData.files = [file];
-                        await navigator.share(shareData);
-                    } else if (navigator.share) {
-                        await navigator.share(shareData);
-                    } else { alert("「レシートを保存」から画像を保存して共有してね！"); }
+                    const canvas = await html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }); list.style.maxHeight = originalMaxHeight;
+                    const blob = await (await fetch(canvas.toDataURL("image/png"))).blob(), file = new File([blob], 'receipt.png', { type: 'image/png' });
+                    const shareData = { title: 'もっちゃもっちゃ食堂', text: `もっちゃもっちゃ食堂の今日の売上は【${grandTotal.toLocaleString()}円】！お店の累計売上は【${saveData.totalGlobalMoney.toLocaleString()}円】突破！ #もっちゃもっちゃ食堂`, };
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) { shareData.files = [file]; await navigator.share(shareData); }
+                    else if (navigator.share) { await navigator.share(shareData); } else { alert("「レシート保存」から画像を保存して共有してね！"); }
                 } catch (err) { console.error(err); }
             };
         }
