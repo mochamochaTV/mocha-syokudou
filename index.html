@@ -291,6 +291,15 @@
             margin-bottom: 6px;
         }
 
+        .receipt-bonus-row {
+            display: flex;
+            justify-content: space-between;
+            color: #27ae60;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
         .receipt-bold-row {
             display: flex;
             justify-content: space-between;
@@ -313,7 +322,7 @@
             background: transparent;
         }
 
-        /* ショップタブ切り替え用のスタイル */
+        /* ショップタブ */
         .shop-tabs {
             display: flex;
             justify-content: center;
@@ -393,12 +402,23 @@
             white-space: nowrap;
         }
 
-        /* 貯蔵庫内のセクションタイトル */
+        /* セレクター（レベル調整用） */
+        .level-select {
+            font-size: 1rem;
+            padding: 6px 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 2px solid #bdc3c7;
+            background-color: #fff;
+            color: #4a3728;
+            cursor: pointer;
+        }
+
         .storage-section-title {
             text-align: left;
             font-size: 1.1rem;
             font-weight: bold;
-            margin: 15px 0 5px 5px;
+            margin: 20px 0 8px 5px;
             color: #d35400;
             border-left: 4px solid #d35400;
             padding-left: 8px;
@@ -444,7 +464,6 @@
             font-weight: bold;
         }
 
-        /* デバッグ用ボタンの装飾 */
         .debug-box {
             margin-top: 20px;
             padding: 10px;
@@ -484,6 +503,7 @@
     <input type="text" id="mobile-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="url">
 
     <div class="container" id="game-container">
+        <!-- ホーム画面（スタート） -->
         <div id="start-screen">
             <div class="total-sales-box">
                 🏪 現在の累計売上：<span id="total-sales-display">￥0</span>
@@ -496,24 +516,15 @@
                 <button id="to-shop-btn" style="background-color: #34495e; box-shadow: 0 5px 0 #2c3e50;">🔨 メニュー・設備開発</button>
                 <button id="to-storage-btn" style="background-color: #27ae60; box-shadow: 0 5px 0 #219653;">📦 食材・アイテム貯蔵庫</button>
             </div>
-            
-            <div style="font-size: 0.8rem; color: #7f8c8d; line-height: 1.5; max-width: 450px; margin: 0 auto; text-align: left; background: rgba(255,255,255,0.6); padding: 12px; border-radius: 10px;">
-                <b>【スマホ・Simejiで遊ぶ方へ】</b><br>
-                ・キーボードを<b>「英字（ローマ字）入力」</b>にしてください。<br>
-                ・伸ばし棒「ー」の代わりに<b>「 . （ドット）」キー</b>でも入力できます！
-            </div>
 
+            <!-- 👇 確認用デバッグボタン（確認後、このdivごと消去可能です） -->
             <div class="debug-box">
                 <span style="font-size:0.8rem; font-weight:bold; color:#e74c3c;">🛠️ 製作者限定デバッグツール</span><br>
                 <button id="debug-money-btn" style="font-size:1rem; padding:5px 15px; background-color:#e74c3c; box-shadow: 0 4px 0 #c0392b; margin-top:5px;">💰 資金＋￥1,000,000</button>
             </div>
-            <div class="credit-box">
-                イラスト協力：<b>だーしお 様 （マーモットのモットー）</b><br>
-                <a href="https://www.instagram.com/marmottooooo" target="_blank">Instagram</a> ｜ 
-                <a href="https://x.com/marmottooooo" target="_blank">X (旧Twitter)</a>
-            </div>
         </div>
 
+        <!-- 開発・購入（ショップ）画面 -->
         <div id="shop-screen" class="hidden">
             <h2>🔨 開発＆購入ショップ</h2>
             <div class="total-sales-box">
@@ -530,23 +541,28 @@
             <button id="back-home-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
         </div>
 
+        <!-- 食材・アイテム・スキル貯蔵庫画面 -->
         <div id="storage-screen" class="hidden">
-            <h2>📦 食材・アイテム貯蔵庫</h2>
+            <h2>📦 食材・アイテム・スキル貯蔵庫</h2>
             <p style="font-size: 0.9rem; margin-bottom: 15px; color: #555;">
-                出現させるメニューや、次のゲームで使用する消費アイテムをON/OFFできます。
+                出現メニューの調整、消費アイテムの持ち込み、スキルのレベル変更（ON/OFF）が可能です。
             </p>
             
-            <div style="max-height: 380px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
-                <div class="storage-section-title">🎒 次回持ち込み消費アイテム</div>
+            <div style="max-height: 480px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
+                <div class="storage-section-title">🎒 次回持ち込み消費アイテム（使い切り）</div>
                 <div class="shop-list" id="storage-item-list-container" style="max-height:none; margin-bottom:0;"></div>
 
-                <div class="storage-section-title">🍱 開店メニュー設定</div>
+                <div class="storage-section-title">🌟 スキルカスタム設定（ON/OFF・レベル調整）</div>
+                <div class="shop-list" id="storage-skill-list-container" style="max-height:none; margin-bottom:0;"></div>
+
+                <div class="storage-section-title">🍱 開店メニュー設定（ジャンルON/OFF）</div>
                 <div class="shop-list" id="storage-menu-list-container" style="max-height:none; margin-bottom:0;"></div>
             </div>
 
             <button id="back-home-storage-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
         </div>
 
+        <!-- ゲームプレイ画面 -->
         <div id="game-screen" class="hidden">
             <div id="timer-container" style="position: relative; width: max-content; margin: 0 auto 5px auto;">
                 <div id="timer">残り時間: 60 秒</div>
@@ -560,6 +576,7 @@
             </div>
         </div>
 
+        <!-- 結果（リザルト）画面 -->
         <div id="result-screen" class="hidden">
             <h2>🎉 注文終了！ 🎉</h2>
             <img src="image_1.png" alt="キャラクター" style="width: 120px; margin-bottom: 10px;">
@@ -594,9 +611,7 @@
                 const response = await fetch('type.mp3');
                 const arrayBuffer = await response.arrayBuffer();
                 typeAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-            } catch (e) {
-                console.log("オーディオ読み込みエラー:", e);
-            }
+            } catch (e) { console.log("オーディオ読み込みエラー:", e); }
         }
 
         function playBoostedTypeSound(currentCombo) {
@@ -607,16 +622,9 @@
             source.buffer = typeAudioBuffer;
             const gainNode = audioCtx.createGain();
             gainNode.gain.value = 1.2;
-
-            source.playbackRate.value = 1.0;
             source.connect(gainNode);
             gainNode.connect(audioCtx.destination);
             source.start(0);
-
-            source.onended = () => {
-                source.disconnect();
-                gainNode.disconnect();
-            };
         }
 
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -632,17 +640,18 @@
 
         let solvedWordCount = 0;
         let totalCharCount = 0;
-        let totalMoney = 0; 
+        let totalOriginalMoney = 0; // ボーナス前の純粋な1文字100円の合計
         let missCount = 0; 
         let orderHistory = []; 
 
         let comboCount = 0;
         let maxComboCount = 0;
-        let currentShopTab = "menu"; // "menu" | "skill" | "item"
+        let currentShopTab = "menu"; 
 
-        // --- アクティブな消費アイテム効果（ゲーム中のみ適用） ---
-        let activeDrinkEffect = false; // コンボ2倍
-        let activeCurryEffect = false; // ミスペナルティ半減
+        // アクティブ消費アイテム
+        let activeDrinkEffect = false;
+        let activeCurryEffect = false;
+        let activeGokuiEffect = false;
 
         const shopCategories = [
             { id: "japan", name: "日本食", cost: 0, icon: "🍱", desc: "初期解放済みの馴染み深い和食" },
@@ -655,33 +664,33 @@
             { id: "space", name: "宇宙の謎グルメ", cost: 100000000, icon: "🛸", desc: "前人未到の1億円！伝説の宇宙飯" }
         ];
 
-        // 永続スキルデータ（5段階アップグレード）
+        // 永続スキルデータ
         const skillData = [
-            { id: "apron", name: "ふかふかエプロン", icon: "🛡️", desc: "タイピングミスを確率で無効化する", costs: [20000, 50000, 120000, 300000, 800000], effects: ["なし", "10%の確率で無効", "20%の確率で無効", "30%の確率で無効", "40%の確率で無効", "50%の確率で無効"] },
-            { id: "hourglass", name: "秘密の砂時計", icon: "⏱️", desc: "ゲームの初期制限時間が永続的に伸びる", costs: [30000, 80000, 200000, 500000, 1200000], effects: ["60秒", "62秒", "64秒", "66秒", "68秒", "70秒"] },
-            { id: "pan", name: "黄金のフライパン", icon: "🍳", desc: "すべての料理の獲得売上(税込)にボーナス", costs: [50000, 150000, 400000, 1000000, 2500000], effects: ["1.0倍", "1.1倍", "1.2倍", "1.3倍", "1.4倍", "1.5倍"] }
+            { id: "apron", name: "ふかふかエプロン", icon: "🛡️", desc: "タイピングミスを確率で無効化（ガード）する", costs: [20000, 50000, 120000, 300000, 800000], effects: ["なし", "10%でガード", "20%でガード", "30%でガード", "40%でガード", "50%でガード"] },
+            { id: "hourglass", name: "秘密の砂時計", icon: "⏱️", desc: "ゲームの初期制限時間が永続的に伸びる", costs: [30000, 80000, 200000, 500000, 1200000], effects: ["60秒", "+2秒", "+4秒", "+6秒", "+8秒", "+10秒"] },
+            { id: "pan", name: "黄金のフライパン", icon: "🍳", desc: "すべての料理の獲得売上(小計)に永続ボーナス", costs: [50000, 150000, 400000, 1000000, 2500000], effects: ["1.0倍", "1.1倍ボーナス", "1.2倍ボーナス", "1.3倍ボーナス", "1.4倍ボーナス", "1.5倍ボーナス"] },
+            { id: "megaphone", name: "呼び込みメガホン", icon: "📢", desc: "文字数が多くて高額な料理が出現しやすくなる", costs: [40000, 100000, 250000, 600000, 1500000], effects: ["通常通り", "長文確率少しUP", "長文確率UP", "長文確率かなりUP", "長文確率大UP", "高級長文メニュー確定!!"] }
         ];
 
         // 消費アイテムデータ
         const consumableData = [
-            { id: "drink", name: "もっちゃ栄養ドリンク", icon: "🧪", cost: 15000, desc: "次の1ゲームだけ、文字入力のコンボ上昇値が2倍になる！" },
-            { id: "curry", name: "まかないの激辛カレー", icon: "🍛", cost: 25000, desc: "次の1ゲームだけ、ミスした時の時間減少ペナルティが0.5秒に半減する！" }
+            { id: "drink", name: "もっちゃ栄養ドリンク", icon: "🧪", cost: 15000, desc: "次の1ゲームのみ、文字入力時のコンボ上昇値が2倍になる！" },
+            { id: "curry", name: "まかないの激辛カレー", icon: "🍛", cost: 25000, desc: "次の1ゲームのみ、ミスした時の時間減少ペナルティが0.5秒に半減！" },
+            { id: "gokui", name: "仕込みの極意書", icon: "📜", cost: 40000, desc: "次の1ゲームのみ、全メニューの文字数が【3文字短く】なり超高速連打が可能！" }
         ];
 
         let saveData = {
             totalSales: 0,
             unlocked: { japan: true, china: false, america: false, italy: false, sweet: false, asia: false, europe: false, space: false },
             activeSwitch: { japan: true, china: true, america: true, italy: true, sweet: true, asia: true, europe: true, space: true },
-            // スキルレベル (0〜5)
-            skills: { apron: 0, hourglass: 0, pan: 0 },
-            // 消費アイテムの所持数
-            items: { drink: 0, curry: 0 },
-            // 消費アイテムの持ち込みON/OFF
-            itemSwitch: { drink: false, curry: false }
+            skills: { apron: 0, hourglass: 0, pan: 0, megaphone: 0 },         // 購入済みの最大レベル
+            equippedSkills: { apron: 0, hourglass: 0, pan: 0, megaphone: 0 }, // 貯蔵庫で現在選択・適用中のレベル
+            items: { drink: 0, curry: 0, gokui: 0 },
+            itemSwitch: { drink: false, curry: false, gokui: false }
         };
 
         function loadGameData() {
-            const saved = localStorage.getItem("moccha_shokudo_v5_data");
+            const saved = localStorage.getItem("moccha_shokudo_v6_data");
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -690,18 +699,17 @@
                         saveData.unlocked = Object.assign(saveData.unlocked, parsed.unlocked);
                         saveData.activeSwitch = Object.assign(saveData.activeSwitch, parsed.activeSwitch);
                         saveData.skills = Object.assign(saveData.skills, parsed.skills);
+                        saveData.equippedSkills = Object.assign(saveData.equippedSkills, parsed.equippedSkills);
                         saveData.items = Object.assign(saveData.items, parsed.items);
                         saveData.itemSwitch = Object.assign(saveData.itemSwitch, parsed.itemSwitch);
                     }
-                } catch(e) {
-                    console.log("セーブデータ解析エラー", e);
-                }
+                } catch(e) { console.log("データロード失敗", e); }
             }
             updateSalesDisplay();
         }
 
         function saveGameData() {
-            localStorage.setItem("moccha_shokudo_v5_data", JSON.stringify(saveData));
+            localStorage.setItem("moccha_shokudo_v6_data", JSON.stringify(saveData));
         }
 
         function updateSalesDisplay() {
@@ -738,54 +746,28 @@
         const shopListContainer = document.getElementById("shop-list-container");
         const storageMenuListContainer = document.getElementById("storage-menu-list-container");
         const storageItemListContainer = document.getElementById("storage-item-list-container");
+        const storageSkillListContainer = document.getElementById("storage-skill-list-container");
 
         const tabMenuBtn = document.getElementById("tab-menu-btn");
         const tabSkillBtn = document.getElementById("tab-skill-btn");
         const tabItemBtn = document.getElementById("tab-item-btn");
 
-        // 製作者確認用デバッグボタン
+        // デバッグ用100万円追加ボタン
         document.getElementById("debug-money-btn").addEventListener("click", () => {
             saveData.totalSales += 1000000;
             saveGameData();
             updateSalesDisplay();
-            cashSound.currentTime = 0;
-            cashSound.play().catch(e=>{});
+            cashSound.currentTime = 0; cashSound.play().catch(e=>{});
             if (!shopScreen.classList.contains("hidden")) renderShop();
         });
 
-        startBtn.addEventListener("click", () => {
-            if (isMobile) mobileInput.focus();
-            loadTypeSound().then(startGame);
-        });
-        retryBtn.addEventListener("click", () => {
-            if (isMobile) mobileInput.focus();
-            startGame();
-        });
-        homeBtn.addEventListener("click", () => {
-            resultScreen.classList.add("hidden");
-            startScreen.classList.remove("hidden");
-            updateSalesDisplay();
-        });
-        toShopBtn.addEventListener("click", () => {
-            startScreen.classList.add("hidden");
-            shopScreen.classList.remove("hidden");
-            switchShopTab("menu");
-        });
-        backHomeBtn.addEventListener("click", () => {
-            shopScreen.classList.add("hidden");
-            startScreen.classList.remove("hidden");
-            updateSalesDisplay();
-        });
-        toStorageBtn.addEventListener("click", () => {
-            startScreen.classList.add("hidden");
-            storageScreen.classList.remove("hidden");
-            renderStorage();
-        });
-        backHomeStorageBtn.addEventListener("click", () => {
-            storageScreen.classList.add("hidden");
-            startScreen.classList.remove("hidden");
-            updateSalesDisplay();
-        });
+        startBtn.addEventListener("click", () => { if (isMobile) mobileInput.focus(); loadTypeSound().then(startGame); });
+        retryBtn.addEventListener("click", () => { if (isMobile) mobileInput.focus(); startGame(); });
+        homeBtn.addEventListener("click", () => { resultScreen.classList.add("hidden"); startScreen.classList.remove("hidden"); updateSalesDisplay(); });
+        toShopBtn.addEventListener("click", () => { startScreen.classList.add("hidden"); shopScreen.classList.remove("hidden"); switchShopTab("menu"); });
+        backHomeBtn.addEventListener("click", () => { shopScreen.classList.add("hidden"); startScreen.classList.remove("hidden"); updateSalesDisplay(); });
+        toStorageBtn.addEventListener("click", () => { startScreen.classList.add("hidden"); storageScreen.classList.remove("hidden"); renderStorage(); });
+        backHomeStorageBtn.addEventListener("click", () => { storageScreen.classList.add("hidden"); startScreen.classList.remove("hidden"); updateSalesDisplay(); });
 
         tabMenuBtn.addEventListener("click", () => switchShopTab("menu"));
         tabSkillBtn.addEventListener("click", () => switchShopTab("skill"));
@@ -793,14 +775,10 @@
 
         function switchShopTab(tab) {
             currentShopTab = tab;
-            tabMenuBtn.classList.remove("active");
-            tabSkillBtn.classList.remove("active");
-            tabItemBtn.classList.remove("active");
-
+            tabMenuBtn.classList.remove("active"); tabSkillBtn.classList.remove("active"); tabItemBtn.classList.remove("active");
             if (tab === "menu") tabMenuBtn.classList.add("active");
             if (tab === "skill") tabSkillBtn.classList.add("active");
             if (tab === "item") tabItemBtn.classList.add("active");
-
             renderShop();
         }
 
@@ -811,11 +789,9 @@
             if (char) handleCharInput(char);
             mobileInput.value = "";
         });
-        gameContainer.addEventListener("click", () => {
-            if (isPlaying && isMobile) mobileInput.focus();
-        });
+        gameContainer.addEventListener("click", () => { if (isPlaying && isMobile) mobileInput.focus(); });
 
-        // --- ショップ描画 ---
+        // --- ショップ画面の描画 ---
         function renderShop() {
             shopListContainer.innerHTML = "";
 
@@ -825,11 +801,9 @@
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "shop-item";
                     let actionHtml = "";
-                    if (item.id === "japan") {
-                        actionHtml = `<span class="shop-item-status">開店初期</span>`;
-                    } else if (isUnlocked) {
-                        actionHtml = `<span class="shop-item-status">✨ 開発済み</span>`;
-                    } else {
+                    if (item.id === "japan") { actionHtml = `<span class="shop-item-status">開店初期</span>`; }
+                    else if (isUnlocked) { actionHtml = `<span class="shop-item-status">✨ 開発済み</span>`; }
+                    else {
                         const canBuy = saveData.totalSales >= item.cost;
                         actionHtml = `<button class="shop-btn" ${canBuy ? "" : "disabled"} onclick="buyMenu('${item.id}', ${item.cost})">開発する</button>`;
                     }
@@ -848,15 +822,14 @@
             } 
             else if (currentShopTab === "skill") {
                 skillData.forEach(skill => {
-                    const currentLv = saveData.skills[skill.id] || 0;
+                    const maxLv = saveData.skills[skill.id] || 0;
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "shop-item";
                     let actionHtml = "";
 
-                    if (currentLv >= 5) {
-                        actionHtml = `<span class="shop-item-status" style="color:#e67e22;">★極・MAX</span>`;
-                    } else {
-                        const nextCost = skill.costs[currentLv];
+                    if (maxLv >= 5) { actionHtml = `<span class="shop-item-status" style="color:#e67e22;">★極・MAX</span>`; }
+                    else {
+                        const nextCost = skill.costs[maxLv];
                         const canBuy = saveData.totalSales >= nextCost;
                         actionHtml = `<button class="shop-btn" ${canBuy ? "" : "disabled"} onclick="upgradeSkill('${skill.id}', ${nextCost})">LvUP (￥${nextCost.toLocaleString()})</button>`;
                     }
@@ -865,9 +838,9 @@
                         <div class="shop-item-info">
                             <div class="shop-item-icon">${skill.icon}</div>
                             <div>
-                                <div class="shop-item-name">${skill.name} <span style="color:#e67e22;">(Lv.${currentLv}/5)</span></div>
+                                <div class="shop-item-name">${skill.name} <span style="color:#e67e22;">(最高保有: Lv.${maxLv})</span></div>
                                 <div style="font-size:0.8rem; color:#555; margin-bottom:2px;">${skill.desc}</div>
-                                <div style="font-size:0.85rem; color:#27ae60; font-weight:bold;">効果: ${skill.effects[currentLv]} ➔ 次: ${currentLv < 5 ? skill.effects[currentLv+1] : 'MAX'}</div>
+                                <div style="font-size:0.85rem; color:#27ae60; font-weight:bold;">次段階効果: ${maxLv < 5 ? skill.effects[maxLv+1] : '上限到達'}</div>
                             </div>
                         </div>
                         <div>${actionHtml}</div>
@@ -902,27 +875,18 @@
 
         window.buyMenu = function(id, cost) {
             if (saveData.totalSales >= cost && !saveData.unlocked[id]) {
-                saveData.totalSales -= cost;
-                saveData.unlocked[id] = true;
-                saveData.activeSwitch[id] = true;
-                saveGameData();
-                cashSound.currentTime = 0;
-                cashSound.play().catch(e => {});
-                updateSalesDisplay();
-                renderShop();
+                saveData.totalSales -= cost; saveData.unlocked[id] = true; saveData.activeSwitch[id] = true;
+                saveGameData(); cashSound.currentTime = 0; cashSound.play().catch(e => {}); updateSalesDisplay(); renderShop();
             }
         };
 
         window.upgradeSkill = function(id, cost) {
-            const currentLv = saveData.skills[id] || 0;
-            if (saveData.totalSales >= cost && currentLv < 5) {
+            const maxLv = saveData.skills[id] || 0;
+            if (saveData.totalSales >= cost && maxLv < 5) {
                 saveData.totalSales -= cost;
-                saveData.skills[id] = currentLv + 1;
-                saveGameData();
-                cashSound.currentTime = 0;
-                cashSound.play().catch(e => {});
-                updateSalesDisplay();
-                renderShop();
+                saveData.skills[id] = maxLv + 1;
+                saveData.equippedSkills[id] = maxLv + 1; // 買ったら自動でそのレベルを装備
+                saveGameData(); cashSound.currentTime = 0; cashSound.play().catch(e => {}); updateSalesDisplay(); renderShop();
             }
         };
 
@@ -930,44 +894,36 @@
             if (saveData.totalSales >= cost) {
                 saveData.totalSales -= cost;
                 saveData.items[id] = (saveData.items[id] || 0) + 1;
-                saveGameData();
-                cashSound.currentTime = 0;
-                cashSound.play().catch(e => {});
-                updateSalesDisplay();
-                renderShop();
+                saveGameData(); cashSound.currentTime = 0; cashSound.play().catch(e => {}); updateSalesDisplay(); renderShop();
             }
         };
 
-        // --- 貯蔵庫（ON/OFF設定）描画 ---
+        // --- 貯蔵庫画面の描画（ON/OFF・レベル選択） ---
         function renderStorage() {
             storageMenuListContainer.innerHTML = "";
             storageItemListContainer.innerHTML = "";
+            storageSkillListContainer.innerHTML = "";
 
-            // 消費アイテムのスイッチ設置
+            // 1. 消費アイテム
             consumableData.forEach(item => {
                 const count = saveData.items[item.id] || 0;
                 const isActive = saveData.itemSwitch[item.id];
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "shop-item";
                 
-                let toggleHtml = "";
-                if (count <= 0) {
-                    toggleHtml = `<span class="lock-text">未所持</span>`;
-                } else {
-                    toggleHtml = `
-                        <label class="switch">
-                            <input type="checkbox" ${isActive ? "checked" : ""} onchange="toggleItemSwitch('${item.id}', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    `;
-                }
+                let toggleHtml = count <= 0 ? `<span class="lock-text">未所持</span>` : `
+                    <label class="switch">
+                        <input type="checkbox" ${isActive ? "checked" : ""} onchange="toggleItemSwitch('${item.id}', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                `;
 
                 itemDiv.innerHTML = `
                     <div class="shop-item-info">
                         <div class="shop-item-icon">${item.icon}</div>
                         <div>
                             <div class="shop-item-name">${item.name} <span style="color:#219653;">(在庫: ${count}個)</span></div>
-                            <div style="font-size:0.8rem; color:#7f8c8d;">${item.desc}<br><span style="color:#d35400;">※ONにすると次のゲーム開始時に1個自動消費されます。</span></div>
+                            <div style="font-size:0.8rem; color:#7f8c8d;">${item.desc}</div>
                         </div>
                     </div>
                     <div>${toggleHtml}</div>
@@ -975,24 +931,53 @@
                 storageItemListContainer.appendChild(itemDiv);
             });
 
-            // メニュー出現ON/OFF
+            // 2. スキルレベル選択・ON/OFF (ご指定の追加仕様)
+            skillData.forEach(skill => {
+                const maxLv = saveData.skills[skill.id] || 0;
+                const currentEquipped = saveData.equippedSkills[skill.id] || 0;
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "shop-item";
+
+                let actionHtml = "";
+                if (maxLv === 0) {
+                    actionHtml = `<span class="lock-text">🔒 未購入</span>`;
+                } else {
+                    // レベル選択用のプルダウンを生成 (0 = OFF)
+                    let selectHtml = `<select class="level-select" onchange="changeSkillLevel('${skill.id}', this.value)">`;
+                    for(let i=0; i<=maxLv; i++) {
+                        const label = i === 0 ? "OFF (不使用)" : `Lv.${i} [${skill.effects[i]}]`;
+                        selectHtml += `<option value="${i}" ${i === currentEquipped ? "selected" : ""}>${label}</option>`;
+                    }
+                    selectHtml += `</select>`;
+                    actionHtml = selectHtml;
+                }
+
+                itemDiv.innerHTML = `
+                    <div class="shop-item-info">
+                        <div class="shop-item-icon">${skill.icon}</div>
+                        <div>
+                            <div class="shop-item-name">${skill.name}</div>
+                            <div style="font-size:0.8rem; color:#7f8c8d;">${skill.desc} <br>(最大解放値: Lv.${maxLv})</div>
+                        </div>
+                    </div>
+                    <div>${actionHtml}</div>
+                `;
+                storageSkillListContainer.appendChild(itemDiv);
+            });
+
+            // 3. メニューカテゴリー
             shopCategories.forEach(item => {
                 const isUnlocked = saveData.unlocked[item.id];
                 const isActive = saveData.activeSwitch[item.id];
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "shop-item";
 
-                let toggleHtml = "";
-                if (!isUnlocked) {
-                    toggleHtml = `<span class="lock-text">🔒 未開発</span>`;
-                } else {
-                    toggleHtml = `
-                        <label class="switch">
-                            <input type="checkbox" ${isActive ? "checked" : ""} onchange="toggleCategory('${item.id}', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    `;
-                }
+                let toggleHtml = !isUnlocked ? `<span class="lock-text">🔒 未開発</span>` : `
+                    <label class="switch">
+                        <input type="checkbox" ${isActive ? "checked" : ""} onchange="toggleCategory('${item.id}', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                `;
 
                 itemDiv.innerHTML = `
                     <div class="shop-item-info">
@@ -1008,31 +993,21 @@
             });
         }
 
-        window.toggleCategory = function(id, isChecked) {
-            saveData.activeSwitch[id] = isChecked;
-            saveGameData();
-        };
-
-        window.toggleItemSwitch = function(id, isChecked) {
-            saveData.itemSwitch[id] = isChecked;
-            saveGameData();
-        };
+        window.toggleCategory = function(id, isChecked) { saveData.activeSwitch[id] = isChecked; saveGameData(); };
+        window.toggleItemSwitch = function(id, isChecked) { saveData.itemSwitch[id] = isChecked; saveGameData(); };
+        window.changeSkillLevel = function(id, value) { saveData.equippedSkills[id] = parseInt(value, 10); saveGameData(); };
 
         function getRomajiVariants(baseRomaji) {
             let variants = [baseRomaji];
             const rules = [
-                { src: "she", dst: "sye" }, { src: "ffu", dst: "hhu" },
-                { src: "cchi", dst: "tti" }, { src: "cchi", dst: "cci" },
-                { src: "chi", dst: "ti" }, { src: "chi", dst: "ci" },
-                { src: "shi", dst: "si" }, { src: "tsu", dst: "tu" },
-                { src: "fu", dst: "hu" }, { src: "ji", dst: "zi" },
-                { src: "cha", dst: "tya" }, { src: "chu", dst: "tyu" }, { src: "cho", dst: "tyo" },
-                { src: "sha", dst: "sya" }, { src: "shu", dst: "syu" }, { src: "sho", dst: "syo" },
-                { src: "ja", dst: "zya" }, { src: "ju", dst: "zyu" }, { src: "jo", dst: "zyo" },
-                { src: "ka", dst: "ca" },  { src: "ko", dst: "co" },  { src: "ku", dst: "cu" }
+                { src: "she", dst: "sye" }, { src: "ffu", dst: "hhu" }, { src: "cchi", dst: "tti" }, 
+                { src: "chi", dst: "ti" }, { src: "shi", dst: "si" }, { src: "tsu", dst: "tu" }, 
+                { src: "fu", dst: "hu" }, { src: "ji", dst: "zi" }, { src: "cha", dst: "tya" }, 
+                { src: "chu", dst: "tyu" }, { src: "cho", dst: "tyo" }, { src: "sha", dst: "sya" }, 
+                { src: "shu", dst: "syu" }, { src: "sho", dst: "syo" }, { src: "ja", dst: "zya" }, 
+                { src: "ju", dst: "zyu" }, { src: "jo", dst: "zyo" }, { src: "ka", dst: "ca" }
             ];
-            let queue = [baseRomaji];
-            let visited = new Set(queue);
+            let queue = [baseRomaji]; let visited = new Set(queue);
             while(queue.length > 0) {
                 let curr = queue.shift();
                 for (let rule of rules) {
@@ -1054,57 +1029,38 @@
             if (isMobile) mobileInput.focus();
 
             remainingWords = wordList.filter(word => saveData.unlocked[word.category] && saveData.activeSwitch[word.category]);
-            if (remainingWords.length === 0) {
-                remainingWords = wordList.filter(word => word.category === "japan");
-            }
+            if (remainingWords.length === 0) { remainingWords = wordList.filter(word => word.category === "japan"); }
 
-            // --- 永続スキル効果を初期タイムに適用 ---
-            const hourglassLv = saveData.skills.hourglass || 0;
-            timeLeft = 60 + (hourglassLv * 2); // 1Lvにつき+2秒 (最大70秒)
+            // 装備中(選択中)のスキルレベルを取得
+            const hourglassLv = saveData.equippedSkills.hourglass || 0;
+            timeLeft = 60 + (hourglassLv * 2); 
 
-            // --- 消費アイテムの適用と在庫消費チェック ---
-            activeDrinkEffect = false;
-            activeCurryEffect = false;
+            // 消費アイテムの初期化・消費
+            activeDrinkEffect = false; activeCurryEffect = false; activeGokuiEffect = false;
 
             if (saveData.itemSwitch.drink && (saveData.items.drink || 0) > 0) {
-                activeDrinkEffect = true;
-                saveData.items.drink -= 1;
-                if (saveData.items.drink <= 0) saveData.itemSwitch.drink = false; // 在庫切れで自動OFF
+                activeDrinkEffect = true; saveData.items.drink -= 1; if (saveData.items.drink <= 0) saveData.itemSwitch.drink = false;
             }
             if (saveData.itemSwitch.curry && (saveData.items.curry || 0) > 0) {
-                activeCurryEffect = true;
-                saveData.items.curry -= 1;
-                if (saveData.items.curry <= 0) saveData.itemSwitch.curry = false;
+                activeCurryEffect = true; saveData.items.curry -= 1; if (saveData.items.curry <= 0) saveData.itemSwitch.curry = false;
+            }
+            if (saveData.itemSwitch.gokui && (saveData.items.gokui || 0) > 0) {
+                activeGokuiEffect = true; saveData.items.gokui -= 1; if (saveData.items.gokui <= 0) saveData.itemSwitch.gokui = false;
             }
             saveGameData();
 
-            isPlaying = true;
-            solvedWordCount = 0;
-            totalCharCount = 0;
-            totalMoney = 0; 
-            missCount = 0; 
-            comboCount = 0;     
-            maxComboCount = 0;  
-            orderHistory = []; 
+            isPlaying = true; solvedWordCount = 0; totalCharCount = 0; totalOriginalMoney = 0; missCount = 0; comboCount = 0; maxComboCount = 0; orderHistory = []; 
             
-            startScreen.classList.add("hidden");
-            resultScreen.classList.add("hidden");
-            gameScreen.classList.remove("hidden");
+            startScreen.classList.add("hidden"); resultScreen.classList.add("hidden"); gameScreen.classList.remove("hidden");
             document.body.classList.add("ingame");
-
-            penaltyPopElement.classList.remove("popup-animation");
-            timerElement.classList.remove("shake-animation");
-            comboContainer.textContent = ""; 
-
+            penaltyPopElement.classList.remove("popup-animation"); timerElement.classList.remove("shake-animation"); comboContainer.textContent = ""; 
             resetCharacterImg();
 
-            bgmSound.currentTime = 0;
-            bgmSound.play().catch(e => console.log("BGM再生失敗:", e));
+            bgmSound.currentTime = 0; bgmSound.play().catch(e => {});
 
             timerElement.textContent = `残り時間: ${timeLeft} 秒`;
             timerInterval = setInterval(() => {
-                timeLeft--;
-                timerElement.textContent = `残り時間: ${timeLeft} 秒`;
+                timeLeft--; timerElement.textContent = `残り時間: ${timeLeft} 秒`;
                 if (timeLeft <= 0) endGame();
             }, 1000);
 
@@ -1112,14 +1068,39 @@
             if (isMobile) { setTimeout(() => { mobileInput.focus(); }, 150); }
         }
 
+        // --- 単語抽出（呼び込みメガホンと仕込みの極意書を反映） ---
         function nextWord() {
             typedBuffer = ""; 
             if (remainingWords.length === 0) {
                 remainingWords = wordList.filter(word => saveData.unlocked[word.category] && saveData.activeSwitch[word.category]);
                 if (remainingWords.length === 0) remainingWords = wordList.filter(word => word.category === "japan");
             }
-            const randomIndex = Math.floor(Math.random() * remainingWords.length);
-            currentWord = remainingWords.splice(randomIndex, 1)[0];
+
+            // 【スキル：呼び込みメガホン】の適用
+            const megaphoneLv = saveData.equippedSkills.megaphone || 0;
+            let pool = [...remainingWords];
+            
+            if (megaphoneLv > 0) {
+                // レベルに応じて、ローマ字が長い（高単価）料理を優先抽出
+                pool.sort((a, b) => b.romaji.length - a.romaji.length);
+                const cutSize = Math.max(3, Math.ceil(pool.length / (6 - megaphoneLv)));
+                pool = pool.slice(0, cutSize);
+            }
+
+            const randomIndex = Math.floor(Math.random() * pool.length);
+            const targetWord = pool[randomIndex];
+            
+            // remainingWords から対象を1つ除外
+            const origIndex = remainingWords.indexOf(targetWord);
+            if (origIndex > -1) remainingWords.splice(origIndex, 1);
+
+            // 【消費アイテム：仕込みの極意書】全単語の文字数を3文字短く（最低2文字残す）
+            let finalRomaji = targetWord.romaji;
+            if (activeGokuiEffect && finalRomaji.length > 5) {
+                finalRomaji = finalRomaji.substring(0, finalRomaji.length - 3);
+            }
+
+            currentWord = { ja: targetWord.ja, romaji: finalRomaji, category: targetWord.category };
             currentWord.variants = getRomajiVariants(currentWord.romaji);
             displayRomaji = currentWord.romaji; 
             wordJaElement.textContent = currentWord.ja;
@@ -1129,14 +1110,11 @@
         function updateRomajiDisplay() {
             const typedPart = displayRomaji.substring(0, typedBuffer.length);
             const untypedPart = displayRomaji.substring(typedBuffer.length);
-            wordRomajiElement.innerHTML = `
-                <span class="typed">${typedPart}</span><span class="untyped">${untypedPart}</span>
-            `;
+            wordRomajiElement.innerHTML = `<span class="typed">${typedPart}</span><span class="untyped">${untypedPart}</span>`;
         }
 
         function handleCharInput(char) {
             if (!isPlaying) return;
-
             let inputChar = char.toLowerCase();
             if (inputChar === '.') inputChar = '-';
             if (!/[a-z\-]/.test(inputChar)) return; 
@@ -1145,89 +1123,53 @@
             const matchingVariants = currentWord.variants.filter(v => v.startsWith(nextBuffer));
 
             if (matchingVariants.length > 0) {
-                typedBuffer = nextBuffer;
-                totalCharCount++;
-                
-                // 消費アイテム「栄養ドリンク」効果でコンボ上昇値2倍
+                typedBuffer = nextBuffer; totalCharCount++;
                 comboCount += activeDrinkEffect ? 2 : 1;
                 if (comboCount > maxComboCount) maxComboCount = comboCount;
 
                 if (comboCount >= 3) {
-                    comboContainer.textContent = `${comboCount} Combo!`;
-                    comboContainer.classList.remove("combo-pop");
-                    void comboContainer.offsetWidth; 
-                    comboContainer.classList.add("combo-pop");
-                } else {
-                    comboContainer.textContent = "";
-                }
+                    comboContainer.textContent = `${comboCount} Combo!`; comboContainer.classList.remove("combo-pop");
+                    void comboContainer.offsetWidth; comboContainer.classList.add("combo-pop");
+                } else { comboContainer.textContent = ""; }
 
-                wordRomajiElement.classList.remove("bounce-effect");
-                void wordRomajiElement.offsetWidth; 
-                wordRomajiElement.classList.add("bounce-effect");
-
+                wordRomajiElement.classList.remove("bounce-effect"); void wordRomajiElement.offsetWidth; wordRomajiElement.classList.add("bounce-effect");
                 playBoostedTypeSound(comboCount);
 
-                if (!displayRomaji.startsWith(typedBuffer)) {
-                    displayRomaji = matchingVariants[0];
-                }
+                if (!displayRomaji.startsWith(typedBuffer)) { displayRomaji = matchingVariants[0]; }
                 updateRomajiDisplay();
 
                 if (typedBuffer === displayRomaji) {
                     solvedWordCount++;
-                    const wordPrice = displayRomaji.length * 100;
-                    totalMoney += wordPrice;
-                    orderHistory.push({ name: currentWord.ja, price: wordPrice });
+                    const baseWordPrice = displayRomaji.length * 100; // 元々の純粋な単価
+                    totalOriginalMoney += baseWordPrice;
+                    orderHistory.push({ name: currentWord.ja, price: baseWordPrice });
                     
-                    chewSound.currentTime = 0;
-                    chewSound.play().catch(e => {});
-
-                    characterImgElement.src = 'image_1.png'; 
-                    characterImgElement.style.transform = 'scale(1.1)';
-
+                    chewSound.currentTime = 0; chewSound.play().catch(e => {});
+                    characterImgElement.src = 'image_1.png'; characterImgElement.style.transform = 'scale(1.1)';
                     if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
                     mouthOpenTimeout = setTimeout(resetCharacterImg, 1500);
 
                     nextWord();
                 }
             } else {
-                // --- 永続スキル「ふかふかエプロン」判定 ---
-                const apronLv = saveData.skills.apron || 0;
-                const ignoreProbability = apronLv * 0.1; // 最大0.5 (50%)
-                
-                if (Math.random() < ignoreProbability) {
-                    // ミスをエプロンが無かったこと（ガード）にして終了
-                    comboCount = 0;
-                    comboContainer.textContent = "";
-                    return;
-                }
+                // 【スキル：ふかふかエプロン】
+                const apronLv = saveData.equippedSkills.apron || 0;
+                if (Math.random() < (apronLv * 0.1)) { comboCount = 0; comboContainer.textContent = ""; return; } // ガード成功
 
-                missCount++;
-                comboCount = 0; 
-                comboContainer.textContent = "";
-                
-                // 消費アイテム「激辛カレー」効果でペナルティ半減
+                missCount++; comboCount = 0; comboContainer.textContent = "";
                 const penaltyTime = activeCurryEffect ? 0.5 : 1.0;
                 timeLeft = Math.max(0, timeLeft - penaltyTime);
                 timerElement.textContent = `残り時間: ${Math.ceil(timeLeft)} 秒`;
                 
                 penaltyPopElement.textContent = activeCurryEffect ? "-0.5秒" : "-1秒";
-                penaltyPopElement.classList.remove("popup-animation");
-                void penaltyPopElement.offsetWidth; 
-                penaltyPopElement.classList.add("popup-animation");
-                
-                timerElement.classList.remove("shake-animation");
-                void timerElement.offsetWidth;
-                timerElement.classList.add("shake-animation");
+                penaltyPopElement.classList.remove("popup-animation"); void penaltyPopElement.offsetWidth; penaltyPopElement.classList.add("popup-animation");
+                timerElement.classList.remove("shake-animation"); void timerElement.offsetWidth; timerElement.classList.add("shake-animation");
                 
                 gameContainer.style.backgroundColor = "rgba(255, 200, 200, 0.95)";
                 setTimeout(() => { if (isPlaying) gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; }, 100);
 
-                const clonedShout = shoutSound.cloneNode(true);
-                clonedShout.play().catch(e => {});
-
-                characterImgElement.src = 'shout.png';
-                characterImgElement.style.transform = 'scale(1.1)';
-
+                const clonedShout = shoutSound.cloneNode(true); clonedShout.play().catch(e => {});
+                characterImgElement.src = 'shout.png'; characterImgElement.style.transform = 'scale(1.1)';
                 if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
                 mouthOpenTimeout = setTimeout(resetCharacterImg, 1000);
             }
@@ -1240,39 +1182,45 @@
             handleCharInput(event.key);
         }
 
-        function resetCharacterImg() {
-            characterImgElement.src = 'normal.png';
-            characterImgElement.style.transform = 'scale(1)';
-        }
+        function resetCharacterImg() { characterImgElement.src = 'normal.png'; characterImgElement.style.transform = 'scale(1)'; }
 
+        // --- ゲーム終了・レシート計算システム修正（ご指定の仕様） ---
         function endGame() {
-            isPlaying = false;
-            clearInterval(timerInterval);
+            isPlaying = false; clearInterval(timerInterval);
             if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
-
-            bgmSound.pause();
-            gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; 
-            document.body.classList.remove("ingame");
-
-            cashSound.currentTime = 0;
-            cashSound.play().catch(e => {});
-
-            gameScreen.classList.add("hidden");
-            resultScreen.classList.remove("hidden");
+            bgmSound.pause(); gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; document.body.classList.remove("ingame");
+            cashSound.currentTime = 0; cashSound.play().catch(e => {});
+            gameScreen.classList.add("hidden"); resultScreen.classList.remove("hidden");
             if (isMobile) mobileInput.blur();
 
-            let subtotal = totalMoney;
-            
-            // --- 永続スキル「黄金のフライパン」倍率ボーナスを適用 ---
-            const panLv = saveData.skills.pan || 0;
-            const panMultiplier = 1.0 + (panLv * 0.1); // 最大1.5倍
-            subtotal = Math.floor(subtotal * panMultiplier);
+            // 1. 各料理は元の値段のままリストアップ
+            let receiptItemsHtml = "";
+            orderHistory.forEach(item => {
+                receiptItemsHtml += `<div class="receipt-row"><span>・${item.name}</span><span>￥${item.price.toLocaleString()}</span></div>`;
+            });
+            if (orderHistory.length === 0) { receiptItemsHtml = `<div class="receipt-row" style="color:#7f8c8d;"><span>（客足ゼロ）</span><span>￥0</span></div>`; }
 
-            const tax = Math.floor(subtotal * 0.1);
-            const grandTotal = subtotal + tax; 
+            // 2. 基本小計の算出
+            let subtotal = totalOriginalMoney;
 
-            saveData.totalSales += grandTotal;
-            saveGameData();
+            // 3. 各種ボーナス計算（別枠表示用）
+            const panLv = saveData.equippedSkills.pan || 0;
+            const panBonusRatio = panLv * 0.1; // 例: Lv5で0.5 (1.5倍)
+            const panBonusMoney = Math.floor(subtotal * panBonusRatio);
+
+            // ドリンクによるコンボボーナス（最大コンボ数に応じた特別祝儀）
+            let drinkBonusMoney = 0;
+            if (activeDrinkEffect && maxComboCount >= 10) {
+                drinkBonusMoney = Math.floor(subtotal * 0.15); // ドリンク効果中、10コンボ以上で15%おまけ
+            }
+
+            // ボーナス適用後の総小計
+            const finalSubtotal = subtotal + panBonusMoney + drinkBonusMoney;
+            const tax = Math.floor(finalSubtotal * 0.1);
+            const grandTotal = finalSubtotal + tax; 
+
+            // 資金に加算して保存
+            saveData.totalSales += grandTotal; saveGameData();
 
             let rankName = "お腹ペコペコ一般人";
             if (grandTotal === 0) rankName = "ただの通行人";
@@ -1284,18 +1232,20 @@
             const now = new Date();
             const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-            let receiptItemsHtml = "";
-            orderHistory.forEach(item => {
-                receiptItemsHtml += `<div class="receipt-row"><span>・${item.name}</span><span>￥${Math.floor(item.price * panMultiplier).toLocaleString()}</span></div>`;
-            });
-            if (orderHistory.length === 0) {
-                receiptItemsHtml = `<div class="receipt-row" style="color:#7f8c8d;"><span>（何も食べられませんでした）</span></div>`;
+            // ボーナス行の組み立て
+            let bonusRowsHtml = "";
+            if (panBonusMoney > 0) {
+                bonusRowsHtml += `<div class="receipt-bonus-row"><span>└ 🍳 黄金のフライパン(Lv.${panLv})</span><span>+￥${panBonusMoney.toLocaleString()}</span></div>`;
+            }
+            if (drinkBonusMoney > 0) {
+                bonusRowsHtml += `<div class="receipt-bonus-row"><span>└ 🧪 栄養ドリンク(大入りコンボ)</span><span>+￥${drinkBonusMoney.toLocaleString()}</span></div>`;
             }
 
             let activeItemsText = [];
-            if (activeDrinkEffect) activeItemsText.push("🧪ドリンク(コンボ2倍)");
-            if (activeCurryEffect) activeItemsText.push("🍛激辛カレー(ミス軽減)");
-            let itemSectionHtml = activeItemsText.length > 0 ? `<div style="font-size:0.8rem; color:#27ae60; text-align:center; margin-bottom:5px;">使用アイテム: ${activeItemsText.join(" / ")}</div>` : "";
+            if (activeDrinkEffect) activeItemsText.push("🧪ドリンク");
+            if (activeCurryEffect) activeItemsText.push("🍛激辛カレー");
+            if (activeGokuiEffect) activeItemsText.push("📜極意書");
+            let itemSectionHtml = activeItemsText.length > 0 ? `<div style="font-size:0.75rem; color:#27ae60; text-align:center; margin-bottom:5px;">発動アイテム: ${activeItemsText.join(" / ")}</div>` : "";
 
             resultElement.innerHTML = `
                 <div class="receipt" id="receipt-box">
@@ -1309,7 +1259,10 @@
                     <div class="receipt-line"></div>
                     <div class="receipt-item-list" id="receipt-list">${receiptItemsHtml}</div>
                     <div class="receipt-line"></div>
-                    <div class="receipt-row"><span>税抜小計 (${solvedWordCount}品${panLv > 0 ? '・フライパン倍率込' : ''})</span><span>￥${subtotal.toLocaleString()}</span></div>
+                    <div class="receipt-row"><span>料理基本売上 (${solvedWordCount}品)</span><span>￥${subtotal.toLocaleString()}</span></div>
+                    ${bonusRowsHtml}
+                    <div class="receipt-line"></div>
+                    <div class="receipt-row"><span>税抜総合計</span><span>￥${finalSubtotal.toLocaleString()}</span></div>
                     <div class="receipt-row"><span>消費税 (10%)</span><span>￥${tax.toLocaleString()}</span></div>
                     <div class="receipt-line"></div>
                     <div class="receipt-bold-row"><span>今回獲得した売上(税込)</span><span>￥${grandTotal.toLocaleString()}</span></div>
@@ -1318,41 +1271,29 @@
             `;
 
             saveReceiptBtn.onclick = function() {
-                const target = document.getElementById("receipt-box");
-                const list = document.getElementById("receipt-list");
-                const originalMaxHeight = list.style.maxHeight;
-                list.style.maxHeight = "none";
+                const target = document.getElementById("receipt-box"); const list = document.getElementById("receipt-list");
+                const originalMaxHeight = list.style.maxHeight; list.style.maxHeight = "none";
                 html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
                     list.style.maxHeight = originalMaxHeight;
-                    const link = document.createElement("a");
-                    link.download = `moccha_shokudo_receipt.png`;
-                    link.href = canvas.toDataURL("image/png");
-                    link.click();
+                    const link = document.createElement("a"); link.download = `moccha_shokudo_receipt.png`; link.href = canvas.toDataURL("image/png"); link.click();
                 }).catch(err => { list.style.maxHeight = originalMaxHeight; alert("保存に失敗しました。"); });
             };
 
             shareReceiptBtn.onclick = async function() {
-                const target = document.getElementById("receipt-box");
-                const list = document.getElementById("receipt-list");
-                const originalMaxHeight = list.style.maxHeight;
-                list.style.maxHeight = "none";
+                const target = document.getElementById("receipt-box"); const list = document.getElementById("receipt-list");
+                const originalMaxHeight = list.style.maxHeight; list.style.maxHeight = "none";
                 try {
                     const canvas = await html2canvas(target, { scale: 2, backgroundColor: "#ffffff" });
                     list.style.maxHeight = originalMaxHeight;
-                    const dataUrl = canvas.toDataURL("image/png");
-                    const blob = await (await fetch(dataUrl)).blob();
+                    const dataUrl = canvas.toDataURL("image/png"); const blob = await (await fetch(dataUrl)).blob();
                     const file = new File([blob], 'receipt.png', { type: 'image/png' });
                     const shareData = {
                         title: 'もっちゃもっちゃ食堂',
                         text: `今日のもっちゃもっちゃ食堂の売上は【${grandTotal.toLocaleString()}円】！称号は【${rankName}】でした！ #もっちゃもっちゃ食堂`,
                     };
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        shareData.files = [file]; await navigator.share(shareData);
-                    } else if (navigator.share) {
-                        await navigator.share(shareData);
-                    } else {
-                        alert("ブラウザが直接共有に対応していません。「レシートを保存」から画像を保存して投稿してね！");
-                    }
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) { shareData.files = [file]; await navigator.share(shareData); }
+                    else if (navigator.share) { await navigator.share(shareData); }
+                    else { alert("「レシートを保存」から画像を保存してSNSに投稿してね！"); }
                 } catch (err) { list.style.maxHeight = originalMaxHeight; }
             };
         }
@@ -1612,9 +1553,7 @@
             { category: "space", ja: "ダークマターカレー", romaji: "da-kumata-ka-re-" }
         ];
 
-        window.onload = function() {
-            loadGameData();
-        };
+        window.onload = function() { loadGameData(); };
     </script>
 </body>
 </html>
