@@ -241,11 +241,6 @@
             color: #7f8c8d;
             line-height: 1.5;
         }
-        .credit-box a {
-            color: #e67e22;
-            text-decoration: none;
-            font-weight: bold;
-        }
 
         .receipt {
             background-color: #ffffff;
@@ -253,7 +248,7 @@
             font-family: 'Courier New', Courier, 'Hiragino Kaku Gothic ProN', sans-serif;
             padding: 25px;
             border: 1px solid #bdc3c7;
-            max-width: 380px;
+            max-width: 420px;
             margin: 20px auto;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             text-align: left;
@@ -402,7 +397,6 @@
             white-space: nowrap;
         }
 
-        /* セレクター（レベル調整用） */
         .level-select {
             font-size: 1rem;
             padding: 6px 12px;
@@ -503,7 +497,6 @@
     <input type="text" id="mobile-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="url">
 
     <div class="container" id="game-container">
-        <!-- ホーム画面（スタート） -->
         <div id="start-screen">
             <div class="total-sales-box">
                 🏪 現在の累計売上：<span id="total-sales-display">￥0</span>
@@ -517,14 +510,12 @@
                 <button id="to-storage-btn" style="background-color: #27ae60; box-shadow: 0 5px 0 #219653;">📦 食材・アイテム貯蔵庫</button>
             </div>
 
-            <!-- 👇 確認用デバッグボタン（確認後、このdivごと消去可能です） -->
             <div class="debug-box">
                 <span style="font-size:0.8rem; font-weight:bold; color:#e74c3c;">🛠️ 製作者限定デバッグツール</span><br>
                 <button id="debug-money-btn" style="font-size:1rem; padding:5px 15px; background-color:#e74c3c; box-shadow: 0 4px 0 #c0392b; margin-top:5px;">💰 資金＋￥1,000,000</button>
             </div>
         </div>
 
-        <!-- 開発・購入（ショップ）画面 -->
         <div id="shop-screen" class="hidden">
             <h2>🔨 開発＆購入ショップ</h2>
             <div class="total-sales-box">
@@ -541,7 +532,6 @@
             <button id="back-home-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
         </div>
 
-        <!-- 食材・アイテム・スキル貯蔵庫画面 -->
         <div id="storage-screen" class="hidden">
             <h2>📦 食材・アイテム・スキル貯蔵庫</h2>
             <p style="font-size: 0.9rem; margin-bottom: 15px; color: #555;">
@@ -562,7 +552,6 @@
             <button id="back-home-storage-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
         </div>
 
-        <!-- ゲームプレイ画面 -->
         <div id="game-screen" class="hidden">
             <div id="timer-container" style="position: relative; width: max-content; margin: 0 auto 5px auto;">
                 <div id="timer">残り時間: 60 秒</div>
@@ -576,7 +565,6 @@
             </div>
         </div>
 
-        <!-- 結果（リザルト）画面 -->
         <div id="result-screen" class="hidden">
             <h2>🎉 注文終了！ 🎉</h2>
             <img src="image_1.png" alt="キャラクター" style="width: 120px; margin-bottom: 10px;">
@@ -640,7 +628,7 @@
 
         let solvedWordCount = 0;
         let totalCharCount = 0;
-        let totalOriginalMoney = 0; // ボーナス前の純粋な1文字100円の合計
+        let totalOriginalMoney = 0; 
         let missCount = 0; 
         let orderHistory = []; 
 
@@ -651,42 +639,51 @@
         // アクティブ消費アイテム
         let activeDrinkEffect = false;
         let activeCurryEffect = false;
-        let activeGokuiEffect = false;
+        let activeBentoEffect = false; // お弁当箱エフェクト
+
+        // 各カテゴリーの新メニュー開発ボーナス定額表
+        const categoryBonusConfig = {
+            china: { name: "中華料理開発お祝い", perCount: 500 },
+            america: { name: "アメリカン開発お祝い", perCount: 1500 },
+            italy: { name: "イタリアン開発お祝い", perCount: 4000 },
+            sweet: { name: "スイーツ開発お祝い", perCount: 10000 },
+            asia: { name: "アジアン開発お祝い", perCount: 30000 },
+            europe: { name: "ヨーロピアン開発お祝い", perCount: 100000 },
+            space: { name: "宇宙グルメ開発お祝い", perCount: 300000 }
+        };
 
         const shopCategories = [
             { id: "japan", name: "日本食", cost: 0, icon: "🍱", desc: "初期解放済みの馴染み深い和食" },
-            { id: "china", name: "中華料理", cost: 150000, icon: "🐼", desc: "漢字の読みが多いテンポ抜群メニュー" },
-            { id: "america", name: "アメリカン", cost: 500000, icon: "🍔", desc: "長音（ー）が多くボリューミーな飯" },
-            { id: "italy", name: "イタリアン", cost: 1500000, icon: "🍕", desc: "トリッキーな指の動きが必要な定番" },
-            { id: "sweet", name: "スイーツ・カフェ", cost: 5000000, icon: "🍰", desc: "大台の100万超え！甘〜い誘惑" },
-            { id: "asia", name: "アジアンエスニック", cost: 15000000, icon: "🐘", desc: "独特の配列が襲うアジアン料理" },
-            { id: "europe", name: "ヨーロピアン", cost: 40000000, icon: "🏰", desc: "超高級！大金を稼げる欧州グルメ" },
-            { id: "space", name: "宇宙の謎グルメ", cost: 100000000, icon: "🛸", desc: "前人未到の1億円！伝説の宇宙飯" }
+            { id: "china", name: "中華料理", cost: 150000, icon: "🐼", desc: "開発メリット：1皿ごとに【＋￥500】加算！" },
+            { id: "america", name: "アメリカン", cost: 500000, icon: "🍔", desc: "開発メリット：1皿ごとに【＋￥1,500】加算！" },
+            { id: "italy", name: "イタリアン", cost: 1500000, icon: "🍕", desc: "開発メリット：1皿ごとに【＋￥4,000】加算！" },
+            { id: "sweet", name: "スイーツ・カフェ", cost: 5000000, icon: "🍰", desc: "開発メリット：1皿ごとに【＋￥10,000】加算！" },
+            { id: "asia", name: "アジアンエスニック", cost: 15000000, icon: "🐘", desc: "開発メリット：1皿ごとに【＋￥30,000】加算！" },
+            { id: "europe", name: "ヨーロピアン", cost: 40000000, icon: "🏰", desc: "開発メリット：1皿ごとに【＋￥100,000】加算！" },
+            { id: "space", name: "宇宙の謎グルメ", cost: 100000000, icon: "🛸", desc: "開発メリット：1皿ごとに【＋￥300,000】加算！" }
         ];
 
-        // 永続スキルデータ
         const skillData = [
             { id: "apron", name: "ふかふかエプロン", icon: "🛡️", desc: "タイピングミスを確率で無効化（ガード）する", costs: [20000, 50000, 120000, 300000, 800000], effects: ["なし", "10%でガード", "20%でガード", "30%でガード", "40%でガード", "50%でガード"] },
             { id: "hourglass", name: "秘密の砂時計", icon: "⏱️", desc: "ゲームの初期制限時間が永続的に伸びる", costs: [30000, 80000, 200000, 500000, 1200000], effects: ["60秒", "+2秒", "+4秒", "+6秒", "+8秒", "+10秒"] },
-            { id: "pan", name: "黄金のフライパン", icon: "🍳", desc: "すべての料理の獲得売上(小計)に永続ボーナス", costs: [50000, 150000, 400000, 1000000, 2500000], effects: ["1.0倍", "1.1倍ボーナス", "1.2倍ボーナス", "1.3倍ボーナス", "1.4倍ボーナス", "1.5倍ボーナス"] },
+            { id: "pan", name: "黄金のフライパン", icon: "🍳", desc: "料理の獲得売上(小計)に永続ボーナス", costs: [50000, 150000, 400000, 1000000, 2500000], effects: ["1.0倍", "1.1倍ボーナス", "1.2倍ボーナス", "1.3倍ボーナス", "1.4倍ボーナス", "1.5倍ボーナス"] },
             { id: "megaphone", name: "呼び込みメガホン", icon: "📢", desc: "文字数が多くて高額な料理が出現しやすくなる", costs: [40000, 100000, 250000, 600000, 1500000], effects: ["通常通り", "長文確率少しUP", "長文確率UP", "長文確率かなりUP", "長文確率大UP", "高級長文メニュー確定!!"] }
         ];
 
-        // 消費アイテムデータ
         const consumableData = [
             { id: "drink", name: "もっちゃ栄養ドリンク", icon: "🧪", cost: 15000, desc: "次の1ゲームのみ、文字入力時のコンボ上昇値が2倍になる！" },
             { id: "curry", name: "まかないの激辛カレー", icon: "🍛", cost: 25000, desc: "次の1ゲームのみ、ミスした時の時間減少ペナルティが0.5秒に半減！" },
-            { id: "gokui", name: "仕込みの極意書", icon: "📜", cost: 40000, desc: "次の1ゲームのみ、全メニューの文字数が【3文字短く】なり超高速連打が可能！" }
+            { id: "bento", name: "もっちゃ特製お弁当箱", icon: "🍱", cost: 50000, desc: "次の1ゲームのみ、レシート末尾の【新メニュー開発ボーナス】がすべて1.5倍に跳ね上がる！" }
         ];
 
         let saveData = {
             totalSales: 0,
             unlocked: { japan: true, china: false, america: false, italy: false, sweet: false, asia: false, europe: false, space: false },
             activeSwitch: { japan: true, china: true, america: true, italy: true, sweet: true, asia: true, europe: true, space: true },
-            skills: { apron: 0, hourglass: 0, pan: 0, megaphone: 0 },         // 購入済みの最大レベル
-            equippedSkills: { apron: 0, hourglass: 0, pan: 0, megaphone: 0 }, // 貯蔵庫で現在選択・適用中のレベル
-            items: { drink: 0, curry: 0, gokui: 0 },
-            itemSwitch: { drink: false, curry: false, gokui: false }
+            skills: { apron: 0, hourglass: 0, pan: 0, megaphone: 0 },         
+            equippedSkills: { apron: 0, hourglass: 0, pan: 0, megaphone: 0 }, 
+            items: { drink: 0, curry: 0, bento: 0 },
+            itemSwitch: { drink: false, curry: false, bento: false }
         };
 
         function loadGameData() {
@@ -752,7 +749,6 @@
         const tabSkillBtn = document.getElementById("tab-skill-btn");
         const tabItemBtn = document.getElementById("tab-item-btn");
 
-        // デバッグ用100万円追加ボタン
         document.getElementById("debug-money-btn").addEventListener("click", () => {
             saveData.totalSales += 1000000;
             saveGameData();
@@ -791,7 +787,6 @@
         });
         gameContainer.addEventListener("click", () => { if (isPlaying && isMobile) mobileInput.focus(); });
 
-        // --- ショップ画面の描画 ---
         function renderShop() {
             shopListContainer.innerHTML = "";
 
@@ -812,7 +807,8 @@
                             <div class="shop-item-icon">${item.icon}</div>
                             <div>
                                 <div class="shop-item-name">${item.name}</div>
-                                <div class="shop-item-cost">${item.id==='japan' ? item.desc : '開発費: ￥' + item.cost.toLocaleString()}</div>
+                                <div style="font-size:0.8rem; color:#27ae60; font-weight:bold; margin-top:2px;">${item.desc}</div>
+                                <div class="shop-item-cost">${item.id==='japan' ? '' : '開発費: ￥' + item.cost.toLocaleString()}</div>
                             </div>
                         </div>
                         <div>${actionHtml}</div>
@@ -885,7 +881,7 @@
             if (saveData.totalSales >= cost && maxLv < 5) {
                 saveData.totalSales -= cost;
                 saveData.skills[id] = maxLv + 1;
-                saveData.equippedSkills[id] = maxLv + 1; // 買ったら自動でそのレベルを装備
+                saveData.equippedSkills[id] = maxLv + 1; 
                 saveGameData(); cashSound.currentTime = 0; cashSound.play().catch(e => {}); updateSalesDisplay(); renderShop();
             }
         };
@@ -898,13 +894,11 @@
             }
         };
 
-        // --- 貯蔵庫画面の描画（ON/OFF・レベル選択） ---
         function renderStorage() {
             storageMenuListContainer.innerHTML = "";
             storageItemListContainer.innerHTML = "";
             storageSkillListContainer.innerHTML = "";
 
-            // 1. 消費アイテム
             consumableData.forEach(item => {
                 const count = saveData.items[item.id] || 0;
                 const isActive = saveData.itemSwitch[item.id];
@@ -931,7 +925,6 @@
                 storageItemListContainer.appendChild(itemDiv);
             });
 
-            // 2. スキルレベル選択・ON/OFF (ご指定の追加仕様)
             skillData.forEach(skill => {
                 const maxLv = saveData.skills[skill.id] || 0;
                 const currentEquipped = saveData.equippedSkills[skill.id] || 0;
@@ -942,7 +935,6 @@
                 if (maxLv === 0) {
                     actionHtml = `<span class="lock-text">🔒 未購入</span>`;
                 } else {
-                    // レベル選択用のプルダウンを生成 (0 = OFF)
                     let selectHtml = `<select class="level-select" onchange="changeSkillLevel('${skill.id}', this.value)">`;
                     for(let i=0; i<=maxLv; i++) {
                         const label = i === 0 ? "OFF (不使用)" : `Lv.${i} [${skill.effects[i]}]`;
@@ -965,7 +957,6 @@
                 storageSkillListContainer.appendChild(itemDiv);
             });
 
-            // 3. メニューカテゴリー
             shopCategories.forEach(item => {
                 const isUnlocked = saveData.unlocked[item.id];
                 const isActive = saveData.activeSwitch[item.id];
@@ -1024,19 +1015,16 @@
             return Array.from(visited);
         }
 
-        // --- ゲーム開始システム ---
         function startGame() {
             if (isMobile) mobileInput.focus();
 
             remainingWords = wordList.filter(word => saveData.unlocked[word.category] && saveData.activeSwitch[word.category]);
             if (remainingWords.length === 0) { remainingWords = wordList.filter(word => word.category === "japan"); }
 
-            // 装備中(選択中)のスキルレベルを取得
             const hourglassLv = saveData.equippedSkills.hourglass || 0;
             timeLeft = 60 + (hourglassLv * 2); 
 
-            // 消費アイテムの初期化・消費
-            activeDrinkEffect = false; activeCurryEffect = false; activeGokuiEffect = false;
+            activeDrinkEffect = false; activeCurryEffect = false; activeBentoEffect = false;
 
             if (saveData.itemSwitch.drink && (saveData.items.drink || 0) > 0) {
                 activeDrinkEffect = true; saveData.items.drink -= 1; if (saveData.items.drink <= 0) saveData.itemSwitch.drink = false;
@@ -1044,8 +1032,8 @@
             if (saveData.itemSwitch.curry && (saveData.items.curry || 0) > 0) {
                 activeCurryEffect = true; saveData.items.curry -= 1; if (saveData.items.curry <= 0) saveData.itemSwitch.curry = false;
             }
-            if (saveData.itemSwitch.gokui && (saveData.items.gokui || 0) > 0) {
-                activeGokuiEffect = true; saveData.items.gokui -= 1; if (saveData.items.gokui <= 0) saveData.itemSwitch.gokui = false;
+            if (saveData.itemSwitch.bento && (saveData.items.bento || 0) > 0) {
+                activeBentoEffect = true; saveData.items.bento -= 1; if (saveData.items.bento <= 0) saveData.itemSwitch.bento = false;
             }
             saveGameData();
 
@@ -1068,7 +1056,6 @@
             if (isMobile) { setTimeout(() => { mobileInput.focus(); }, 150); }
         }
 
-        // --- 単語抽出（呼び込みメガホンと仕込みの極意書を反映） ---
         function nextWord() {
             typedBuffer = ""; 
             if (remainingWords.length === 0) {
@@ -1076,12 +1063,10 @@
                 if (remainingWords.length === 0) remainingWords = wordList.filter(word => word.category === "japan");
             }
 
-            // 【スキル：呼び込みメガホン】の適用
             const megaphoneLv = saveData.equippedSkills.megaphone || 0;
             let pool = [...remainingWords];
             
             if (megaphoneLv > 0) {
-                // レベルに応じて、ローマ字が長い（高単価）料理を優先抽出
                 pool.sort((a, b) => b.romaji.length - a.romaji.length);
                 const cutSize = Math.max(3, Math.ceil(pool.length / (6 - megaphoneLv)));
                 pool = pool.slice(0, cutSize);
@@ -1090,17 +1075,10 @@
             const randomIndex = Math.floor(Math.random() * pool.length);
             const targetWord = pool[randomIndex];
             
-            // remainingWords から対象を1つ除外
             const origIndex = remainingWords.indexOf(targetWord);
             if (origIndex > -1) remainingWords.splice(origIndex, 1);
 
-            // 【消費アイテム：仕込みの極意書】全単語の文字数を3文字短く（最低2文字残す）
-            let finalRomaji = targetWord.romaji;
-            if (activeGokuiEffect && finalRomaji.length > 5) {
-                finalRomaji = finalRomaji.substring(0, finalRomaji.length - 3);
-            }
-
-            currentWord = { ja: targetWord.ja, romaji: finalRomaji, category: targetWord.category };
+            currentWord = { ja: targetWord.ja, romaji: targetWord.romaji, category: targetWord.category };
             currentWord.variants = getRomajiVariants(currentWord.romaji);
             displayRomaji = currentWord.romaji; 
             wordJaElement.textContent = currentWord.ja;
@@ -1140,9 +1118,9 @@
 
                 if (typedBuffer === displayRomaji) {
                     solvedWordCount++;
-                    const baseWordPrice = displayRomaji.length * 100; // 元々の純粋な単価
+                    const baseWordPrice = displayRomaji.length * 100; 
                     totalOriginalMoney += baseWordPrice;
-                    orderHistory.push({ name: currentWord.ja, price: baseWordPrice });
+                    orderHistory.push({ name: currentWord.ja, price: baseWordPrice, category: currentWord.category });
                     
                     chewSound.currentTime = 0; chewSound.play().catch(e => {});
                     characterImgElement.src = 'image_1.png'; characterImgElement.style.transform = 'scale(1.1)';
@@ -1152,9 +1130,8 @@
                     nextWord();
                 }
             } else {
-                // 【スキル：ふかふかエプロン】
                 const apronLv = saveData.equippedSkills.apron || 0;
-                if (Math.random() < (apronLv * 0.1)) { comboCount = 0; comboContainer.textContent = ""; return; } // ガード成功
+                if (Math.random() < (apronLv * 0.1)) { comboCount = 0; comboContainer.textContent = ""; return; } 
 
                 missCount++; comboCount = 0; comboContainer.textContent = "";
                 const penaltyTime = activeCurryEffect ? 0.5 : 1.0;
@@ -1184,7 +1161,6 @@
 
         function resetCharacterImg() { characterImgElement.src = 'normal.png'; characterImgElement.style.transform = 'scale(1)'; }
 
-        // --- ゲーム終了・レシート計算システム修正（ご指定の仕様） ---
         function endGame() {
             isPlaying = false; clearInterval(timerInterval);
             if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
@@ -1193,47 +1169,36 @@
             gameScreen.classList.add("hidden"); resultScreen.classList.remove("hidden");
             if (isMobile) mobileInput.blur();
 
-            // 1. 各料理は元の値段のままリストアップ
+            // 1. 各商品は元の単価のままレシート出力
             let receiptItemsHtml = "";
+            let categoryCounts = { china:0, america:0, italy:0, sweet:0, asia:0, europe:0, space:0 };
+
             orderHistory.forEach(item => {
                 receiptItemsHtml += `<div class="receipt-row"><span>・${item.name}</span><span>￥${item.price.toLocaleString()}</span></div>`;
+                if(categoryCounts[item.category] !== undefined) {
+                    categoryCounts[item.category]++;
+                }
             });
             if (orderHistory.length === 0) { receiptItemsHtml = `<div class="receipt-row" style="color:#7f8c8d;"><span>（客足ゼロ）</span><span>￥0</span></div>`; }
 
-            // 2. 基本小計の算出
+            // 2. 基本料理小計
             let subtotal = totalOriginalMoney;
 
-            // 3. 各種ボーナス計算（別枠表示用）
+            // 3. フライパンなどの倍率ボーナス
             const panLv = saveData.equippedSkills.pan || 0;
-            const panBonusRatio = panLv * 0.1; // 例: Lv5で0.5 (1.5倍)
+            const panBonusRatio = panLv * 0.1; 
             const panBonusMoney = Math.floor(subtotal * panBonusRatio);
 
-            // ドリンクによるコンボボーナス（最大コンボ数に応じた特別祝儀）
             let drinkBonusMoney = 0;
             if (activeDrinkEffect && maxComboCount >= 10) {
-                drinkBonusMoney = Math.floor(subtotal * 0.15); // ドリンク効果中、10コンボ以上で15%おまけ
+                drinkBonusMoney = Math.floor(subtotal * 0.15); 
             }
 
-            // ボーナス適用後の総小計
-            const finalSubtotal = subtotal + panBonusMoney + drinkBonusMoney;
-            const tax = Math.floor(finalSubtotal * 0.1);
-            const grandTotal = finalSubtotal + tax; 
-
-            // 資金に加算して保存
-            saveData.totalSales += grandTotal; saveGameData();
-
-            let rankName = "お腹ペコペコ一般人";
-            if (grandTotal === 0) rankName = "ただの通行人";
-            else if (grandTotal <= 4000) rankName = "ちょい食いお馴染みさん";
-            else if (grandTotal <= 9000) rankName = "常連のプロ食いしん坊";
-            else if (grandTotal <= 16000) rankName = "精鋭フードファイター";
-            else rankName = "伝説のもっちゃもっちゃ隊";
-
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-            // ボーナス行の組み立て
+            // 4. 【追加要素】新メニュー開発定額ボーナス（出現回数分配信）
+            let developmentBonusMoney = 0;
             let bonusRowsHtml = "";
+
+            // フライパンなどのおまけ行
             if (panBonusMoney > 0) {
                 bonusRowsHtml += `<div class="receipt-bonus-row"><span>└ 🍳 黄金のフライパン(Lv.${panLv})</span><span>+￥${panBonusMoney.toLocaleString()}</span></div>`;
             }
@@ -1241,10 +1206,45 @@
                 bonusRowsHtml += `<div class="receipt-bonus-row"><span>└ 🧪 栄養ドリンク(大入りコンボ)</span><span>+￥${drinkBonusMoney.toLocaleString()}</span></div>`;
             }
 
+            // 新メニューの各ジャンル別の計算
+            for (let cat in categoryBonusConfig) {
+                if (categoryCounts[cat] > 0) {
+                    let basePerCount = categoryBonusConfig[cat].perCount;
+                    // お弁当箱効果がある場合は定額が1.5倍に
+                    if (activeBentoEffect) {
+                        basePerCount = Math.floor(basePerCount * 1.5);
+                    }
+                    const totalCatBonus = basePerCount * categoryCounts[cat];
+                    developmentBonusMoney += totalCatBonus;
+
+                    const iconStr = shopCategories.find(s => s.id === cat)?.icon || "🍳";
+                    const itemLabel = activeBentoEffect ? `└ ${iconStr} ${categoryBonusConfig[cat].name}(1.5倍)` : `└ ${iconStr} ${categoryBonusConfig[cat].name}`;
+                    bonusRowsHtml += `<div class="receipt-bonus-row" style="color:#e67e22;"><span>${itemLabel} (×${categoryCounts[cat]}回)</span><span>+￥${totalCatBonus.toLocaleString()}</span></div>`;
+                }
+            }
+
+            // 税抜総合計の算出 (基本売上 + フライパン類ボーナス + メニュー開発定額ボーナス)
+            const finalSubtotal = subtotal + panBonusMoney + drinkBonusMoney + developmentBonusMoney;
+            const tax = Math.floor(finalSubtotal * 0.1);
+            const grandTotal = finalSubtotal + tax; 
+
+            saveData.totalSales += grandTotal; saveGameData();
+
+            let rankName = "お腹ペコペコ一般人";
+            if (grandTotal === 0) rankName = "ただの通行人";
+            else if (grandTotal <= 5000) rankName = "ちょい食いお馴染みさん";
+            else if (grandTotal <= 25000) rankName = "常連のプロ食いしん坊";
+            else if (grandTotal <= 150000) rankName = "精鋭フードファイター";
+            else if (grandTotal <= 1000000) rankName = "三ツ星メガ食堂オーナー";
+            else rankName = "伝説のもっちゃもっちゃ天帝";
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
             let activeItemsText = [];
             if (activeDrinkEffect) activeItemsText.push("🧪ドリンク");
             if (activeCurryEffect) activeItemsText.push("🍛激辛カレー");
-            if (activeGokuiEffect) activeItemsText.push("📜極意書");
+            if (activeBentoEffect) activeItemsText.push("🍱特製お弁当箱");
             let itemSectionHtml = activeItemsText.length > 0 ? `<div style="font-size:0.75rem; color:#27ae60; text-align:center; margin-bottom:5px;">発動アイテム: ${activeItemsText.join(" / ")}</div>` : "";
 
             resultElement.innerHTML = `
@@ -1298,7 +1298,6 @@
             };
         }
 
-        // --- 単語データリスト ---
         const wordList = [
             // 日本食 (japan)
             { category: "japan", ja: "おにぎり", romaji: "onigiri" },
