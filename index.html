@@ -209,7 +209,6 @@
             cursor: not-allowed;
         }
 
-        /* 縦並びボタン用のコンテナと個別スタイル */
         .vertical-btn-group {
             display: flex;
             flex-direction: column;
@@ -246,9 +245,6 @@
             color: #e67e22;
             text-decoration: none;
             font-weight: bold;
-        }
-        .credit-box a:hover {
-            text-decoration: underline;
         }
 
         .receipt {
@@ -317,11 +313,29 @@
             background: transparent;
         }
 
+        /* ショップタブ切り替え用のスタイル */
+        .shop-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .shop-tab-btn {
+            font-size: 1rem;
+            padding: 8px 16px;
+            background-color: #bdc3c7;
+            box-shadow: 0 4px 0 #7f8c8d;
+        }
+        .shop-tab-btn.active {
+            background-color: #e67e22;
+            box-shadow: 0 4px 0 #d35400;
+        }
+
         .shop-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            max-height: 400px;
+            max-height: 380px;
             overflow-y: auto;
             padding-right: 5px;
             margin-bottom: 20px;
@@ -343,6 +357,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex: 1;
         }
 
         .shop-item-icon {
@@ -375,6 +390,18 @@
             font-size: 0.95rem;
             padding: 8px 16px;
             box-shadow: 0 3px 0 #d35400;
+            white-space: nowrap;
+        }
+
+        /* 貯蔵庫内のセクションタイトル */
+        .storage-section-title {
+            text-align: left;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 15px 0 5px 5px;
+            color: #d35400;
+            border-left: 4px solid #d35400;
+            padding-left: 8px;
         }
 
         .switch {
@@ -411,15 +438,19 @@
         input:checked + .slider::before {
             transform: translateX(26px);
         }
-        input:disabled + .slider {
-            background-color: #e67e22;
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
         .lock-text {
             font-size: 0.8rem;
             color: #7f8c8d;
             font-weight: bold;
+        }
+
+        /* デバッグ用ボタンの装飾 */
+        .debug-box {
+            margin-top: 20px;
+            padding: 10px;
+            border: 2px dotted #e74c3c;
+            border-radius: 10px;
+            background: #fff0f0;
         }
 
         @media (max-width: 480px) {
@@ -439,8 +470,6 @@
             .vertical-btn-group button { width: 100%; max-width: none; }
             .sub-btn { font-size: 0.9rem; padding: 6px 12px; }
             .receipt { padding: 15px; font-size: 0.85rem; margin: 10px auto; }
-            .receipt-title { font-size: 1.1rem; }
-            .receipt-bold-row { font-size: 1.1rem; }
             .shop-item { padding: 10px; flex-direction: column; gap: 8px; align-items: center; text-align: center; }
             .shop-item-info { flex-direction: column; gap: 4px; text-align: center; }
             .shop-btn { width: 100%; }
@@ -455,7 +484,6 @@
     <input type="text" id="mobile-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="url">
 
     <div class="container" id="game-container">
-        <!-- ホーム画面（スタート） -->
         <div id="start-screen">
             <div class="total-sales-box">
                 🏪 現在の累計売上：<span id="total-sales-display">￥0</span>
@@ -463,20 +491,22 @@
 
             <img src="normal.png" alt="キャラクター" style="width: 120px; margin-bottom: 15px;"><br>
             
-            <!-- 縦並びメニューボタンエリア（注文開始が一番上） -->
             <div class="vertical-btn-group">
                 <button id="start-btn">注文開始！</button>
-                <button id="to-shop-btn" style="background-color: #34495e; box-shadow: 0 5px 0 #2c3e50;">🔨 メニュー開発</button>
-                <button id="to-storage-btn" style="background-color: #27ae60; box-shadow: 0 5px 0 #219653;">📦 食材貯蔵庫</button>
+                <button id="to-shop-btn" style="background-color: #34495e; box-shadow: 0 5px 0 #2c3e50;">🔨 メニュー・設備開発</button>
+                <button id="to-storage-btn" style="background-color: #27ae60; box-shadow: 0 5px 0 #219653;">📦 食材・アイテム貯蔵庫</button>
             </div>
             
             <div style="font-size: 0.8rem; color: #7f8c8d; line-height: 1.5; max-width: 450px; margin: 0 auto; text-align: left; background: rgba(255,255,255,0.6); padding: 12px; border-radius: 10px;">
                 <b>【スマホ・Simejiで遊ぶ方へ】</b><br>
                 ・キーボードを<b>「英字（ローマ字）入力」</b>にしてください。<br>
-                ・伸ばし棒「ー」の代わりに<b>「 . （ドット）」キー</b>でも入力できます！<br>
-                ・キーボードが閉じたら、画面をタップするともう一度開きます。
+                ・伸ばし棒「ー」の代わりに<b>「 . （ドット）」キー</b>でも入力できます！
             </div>
 
+            <div class="debug-box">
+                <span style="font-size:0.8rem; font-weight:bold; color:#e74c3c;">🛠️ 製作者限定デバッグツール</span><br>
+                <button id="debug-money-btn" style="font-size:1rem; padding:5px 15px; background-color:#e74c3c; box-shadow: 0 4px 0 #c0392b; margin-top:5px;">💰 資金＋￥1,000,000</button>
+            </div>
             <div class="credit-box">
                 イラスト協力：<b>だーしお 様 （マーモットのモットー）</b><br>
                 <a href="https://www.instagram.com/marmottooooo" target="_blank">Instagram</a> ｜ 
@@ -484,28 +514,39 @@
             </div>
         </div>
 
-        <!-- メニュー開発（ショップ）画面 -->
         <div id="shop-screen" class="hidden">
-            <h2>🔨 新メニュー開発（ショップ）</h2>
+            <h2>🔨 開発＆購入ショップ</h2>
             <div class="total-sales-box">
                 💰 手持ちの資金：<span id="shop-sales-display">￥0</span>
             </div>
+
+            <div class="shop-tabs">
+                <button class="shop-tab-btn active" id="tab-menu-btn">🍳 新メニュー</button>
+                <button class="shop-tab-btn" id="tab-skill-btn">🌟 永続スキル</button>
+                <button class="shop-tab-btn" id="tab-item-btn">🎒 消費アイテム</button>
+            </div>
+
             <div class="shop-list" id="shop-list-container"></div>
             <button id="back-home-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
         </div>
 
-        <!-- 食材貯蔵庫（オン／オフ設定）画面 -->
         <div id="storage-screen" class="hidden">
-            <h2>📦 食材貯蔵庫（メニューの出現ON/OFF）</h2>
+            <h2>📦 食材・アイテム貯蔵庫</h2>
             <p style="font-size: 0.9rem; margin-bottom: 15px; color: #555;">
-                解放済みの料理をゲームに出現させるか選べます。<br>
-                （※すべてオフにした場合は、初期の日本食だけが自動選出されます）
+                出現させるメニューや、次のゲームで使用する消費アイテムをON/OFFできます。
             </p>
-            <div class="shop-list" id="storage-list-container"></div>
+            
+            <div style="max-height: 380px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
+                <div class="storage-section-title">🎒 次回持ち込み消費アイテム</div>
+                <div class="shop-list" id="storage-item-list-container" style="max-height:none; margin-bottom:0;"></div>
+
+                <div class="storage-section-title">🍱 開店メニュー設定</div>
+                <div class="shop-list" id="storage-menu-list-container" style="max-height:none; margin-bottom:0;"></div>
+            </div>
+
             <button id="back-home-storage-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
         </div>
 
-        <!-- ゲームプレイ画面 -->
         <div id="game-screen" class="hidden">
             <div id="timer-container" style="position: relative; width: max-content; margin: 0 auto 5px auto;">
                 <div id="timer">残り時間: 60 秒</div>
@@ -519,7 +560,6 @@
             </div>
         </div>
 
-        <!-- 結果（リザルト）画面 -->
         <div id="result-screen" class="hidden">
             <h2>🎉 注文終了！ 🎉</h2>
             <img src="image_1.png" alt="キャラクター" style="width: 120px; margin-bottom: 10px;">
@@ -536,7 +576,6 @@
     </div>
 
     <script>
-        // --- 1. 音声の設定 ---
         const chewSound = new Audio('chew.mp3'); 
         const bgmSound = new Audio('bgm.mp3');
         bgmSound.loop = true;
@@ -582,7 +621,6 @@
 
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-        // --- 2. ゲームの状態・セーブデータの管理 ---
         let remainingWords = [];
         let currentWord = {};
         let typedBuffer = "";       
@@ -600,6 +638,11 @@
 
         let comboCount = 0;
         let maxComboCount = 0;
+        let currentShopTab = "menu"; // "menu" | "skill" | "item"
+
+        // --- アクティブな消費アイテム効果（ゲーム中のみ適用） ---
+        let activeDrinkEffect = false; // コンボ2倍
+        let activeCurryEffect = false; // ミスペナルティ半減
 
         const shopCategories = [
             { id: "japan", name: "日本食", cost: 0, icon: "🍱", desc: "初期解放済みの馴染み深い和食" },
@@ -612,14 +655,33 @@
             { id: "space", name: "宇宙の謎グルメ", cost: 100000000, icon: "🛸", desc: "前人未到の1億円！伝説の宇宙飯" }
         ];
 
+        // 永続スキルデータ（5段階アップグレード）
+        const skillData = [
+            { id: "apron", name: "ふかふかエプロン", icon: "🛡️", desc: "タイピングミスを確率で無効化する", costs: [20000, 50000, 120000, 300000, 800000], effects: ["なし", "10%の確率で無効", "20%の確率で無効", "30%の確率で無効", "40%の確率で無効", "50%の確率で無効"] },
+            { id: "hourglass", name: "秘密の砂時計", icon: "⏱️", desc: "ゲームの初期制限時間が永続的に伸びる", costs: [30000, 80000, 200000, 500000, 1200000], effects: ["60秒", "62秒", "64秒", "66秒", "68秒", "70秒"] },
+            { id: "pan", name: "黄金のフライパン", icon: "🍳", desc: "すべての料理の獲得売上(税込)にボーナス", costs: [50000, 150000, 400000, 1000000, 2500000], effects: ["1.0倍", "1.1倍", "1.2倍", "1.3倍", "1.4倍", "1.5倍"] }
+        ];
+
+        // 消費アイテムデータ
+        const consumableData = [
+            { id: "drink", name: "もっちゃ栄養ドリンク", icon: "🧪", cost: 15000, desc: "次の1ゲームだけ、文字入力のコンボ上昇値が2倍になる！" },
+            { id: "curry", name: "まかないの激辛カレー", icon: "🍛", cost: 25000, desc: "次の1ゲームだけ、ミスした時の時間減少ペナルティが0.5秒に半減する！" }
+        ];
+
         let saveData = {
             totalSales: 0,
             unlocked: { japan: true, china: false, america: false, italy: false, sweet: false, asia: false, europe: false, space: false },
-            activeSwitch: { japan: true, china: true, america: true, italy: true, sweet: true, asia: true, europe: true, space: true }
+            activeSwitch: { japan: true, china: true, america: true, italy: true, sweet: true, asia: true, europe: true, space: true },
+            // スキルレベル (0〜5)
+            skills: { apron: 0, hourglass: 0, pan: 0 },
+            // 消費アイテムの所持数
+            items: { drink: 0, curry: 0 },
+            // 消費アイテムの持ち込みON/OFF
+            itemSwitch: { drink: false, curry: false }
         };
 
         function loadGameData() {
-            const saved = localStorage.getItem("moccha_shokudo_v4_data");
+            const saved = localStorage.getItem("moccha_shokudo_v5_data");
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -627,6 +689,9 @@
                         saveData.totalSales = parsed.totalSales || 0;
                         saveData.unlocked = Object.assign(saveData.unlocked, parsed.unlocked);
                         saveData.activeSwitch = Object.assign(saveData.activeSwitch, parsed.activeSwitch);
+                        saveData.skills = Object.assign(saveData.skills, parsed.skills);
+                        saveData.items = Object.assign(saveData.items, parsed.items);
+                        saveData.itemSwitch = Object.assign(saveData.itemSwitch, parsed.itemSwitch);
                     }
                 } catch(e) {
                     console.log("セーブデータ解析エラー", e);
@@ -636,7 +701,7 @@
         }
 
         function saveGameData() {
-            localStorage.setItem("moccha_shokudo_v4_data", JSON.stringify(saveData));
+            localStorage.setItem("moccha_shokudo_v5_data", JSON.stringify(saveData));
         }
 
         function updateSalesDisplay() {
@@ -644,7 +709,6 @@
             document.getElementById("shop-sales-display").textContent = `￥${saveData.totalSales.toLocaleString()}`;
         }
 
-        // --- 3. HTML要素の取得 ---
         const startScreen = document.getElementById("start-screen");
         const shopScreen = document.getElementById("shop-screen");
         const storageScreen = document.getElementById("storage-screen");
@@ -672,9 +736,23 @@
         const shareReceiptBtn = document.getElementById("share-receipt-btn");
         const mobileInput = document.getElementById("mobile-input");
         const shopListContainer = document.getElementById("shop-list-container");
-        const storageListContainer = document.getElementById("storage-list-container");
+        const storageMenuListContainer = document.getElementById("storage-menu-list-container");
+        const storageItemListContainer = document.getElementById("storage-item-list-container");
 
-        // --- 4. 画面遷移の設定 ---
+        const tabMenuBtn = document.getElementById("tab-menu-btn");
+        const tabSkillBtn = document.getElementById("tab-skill-btn");
+        const tabItemBtn = document.getElementById("tab-item-btn");
+
+        // 製作者確認用デバッグボタン
+        document.getElementById("debug-money-btn").addEventListener("click", () => {
+            saveData.totalSales += 1000000;
+            saveGameData();
+            updateSalesDisplay();
+            cashSound.currentTime = 0;
+            cashSound.play().catch(e=>{});
+            if (!shopScreen.classList.contains("hidden")) renderShop();
+        });
+
         startBtn.addEventListener("click", () => {
             if (isMobile) mobileInput.focus();
             loadTypeSound().then(startGame);
@@ -691,7 +769,7 @@
         toShopBtn.addEventListener("click", () => {
             startScreen.classList.add("hidden");
             shopScreen.classList.remove("hidden");
-            renderShop();
+            switchShopTab("menu");
         });
         backHomeBtn.addEventListener("click", () => {
             shopScreen.classList.add("hidden");
@@ -709,6 +787,23 @@
             updateSalesDisplay();
         });
 
+        tabMenuBtn.addEventListener("click", () => switchShopTab("menu"));
+        tabSkillBtn.addEventListener("click", () => switchShopTab("skill"));
+        tabItemBtn.addEventListener("click", () => switchShopTab("item"));
+
+        function switchShopTab(tab) {
+            currentShopTab = tab;
+            tabMenuBtn.classList.remove("active");
+            tabSkillBtn.classList.remove("active");
+            tabItemBtn.classList.remove("active");
+
+            if (tab === "menu") tabMenuBtn.classList.add("active");
+            if (tab === "skill") tabSkillBtn.classList.add("active");
+            if (tab === "item") tabItemBtn.classList.add("active");
+
+            renderShop();
+        }
+
         window.addEventListener("keydown", handleKeyDown);
         mobileInput.addEventListener("input", (event) => {
             if (!isMobile || !isPlaying) { mobileInput.value = ""; return; }
@@ -720,40 +815,89 @@
             if (isPlaying && isMobile) mobileInput.focus();
         });
 
-        // --- 5. ショップ画面の生成 ---
+        // --- ショップ描画 ---
         function renderShop() {
             shopListContainer.innerHTML = "";
-            shopCategories.forEach(item => {
-                const isUnlocked = saveData.unlocked[item.id];
-                const itemDiv = document.createElement("div");
-                itemDiv.className = "shop-item";
 
-                let actionHtml = "";
-                if (item.id === "japan") {
-                    actionHtml = `<span class="shop-item-status">開店初期</span>`;
-                } else if (isUnlocked) {
-                    actionHtml = `<span class="shop-item-status">✨ 開発済み</span>`;
-                } else {
-                    const canBuy = saveData.totalSales >= item.cost;
-                    actionHtml = `
-                        <button class="shop-btn" ${canBuy ? "" : "disabled"} onclick="buyMenu('${item.id}', ${item.cost})">
-                            開発する
-                        </button>
-                    `;
-                }
-
-                itemDiv.innerHTML = `
-                    <div class="shop-item-info">
-                        <div class="shop-item-icon">${item.icon}</div>
-                        <div>
-                            <div class="shop-item-name">${item.name}</div>
-                            <div class="shop-item-cost">${item.id==='japan' ? item.desc : '開発費: ￥' + item.cost.toLocaleString()}</div>
+            if (currentShopTab === "menu") {
+                shopCategories.forEach(item => {
+                    const isUnlocked = saveData.unlocked[item.id];
+                    const itemDiv = document.createElement("div");
+                    itemDiv.className = "shop-item";
+                    let actionHtml = "";
+                    if (item.id === "japan") {
+                        actionHtml = `<span class="shop-item-status">開店初期</span>`;
+                    } else if (isUnlocked) {
+                        actionHtml = `<span class="shop-item-status">✨ 開発済み</span>`;
+                    } else {
+                        const canBuy = saveData.totalSales >= item.cost;
+                        actionHtml = `<button class="shop-btn" ${canBuy ? "" : "disabled"} onclick="buyMenu('${item.id}', ${item.cost})">開発する</button>`;
+                    }
+                    itemDiv.innerHTML = `
+                        <div class="shop-item-info">
+                            <div class="shop-item-icon">${item.icon}</div>
+                            <div>
+                                <div class="shop-item-name">${item.name}</div>
+                                <div class="shop-item-cost">${item.id==='japan' ? item.desc : '開発費: ￥' + item.cost.toLocaleString()}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div>${actionHtml}</div>
-                `;
-                shopListContainer.appendChild(itemDiv);
-            });
+                        <div>${actionHtml}</div>
+                    `;
+                    shopListContainer.appendChild(itemDiv);
+                });
+            } 
+            else if (currentShopTab === "skill") {
+                skillData.forEach(skill => {
+                    const currentLv = saveData.skills[skill.id] || 0;
+                    const itemDiv = document.createElement("div");
+                    itemDiv.className = "shop-item";
+                    let actionHtml = "";
+
+                    if (currentLv >= 5) {
+                        actionHtml = `<span class="shop-item-status" style="color:#e67e22;">★極・MAX</span>`;
+                    } else {
+                        const nextCost = skill.costs[currentLv];
+                        const canBuy = saveData.totalSales >= nextCost;
+                        actionHtml = `<button class="shop-btn" ${canBuy ? "" : "disabled"} onclick="upgradeSkill('${skill.id}', ${nextCost})">LvUP (￥${nextCost.toLocaleString()})</button>`;
+                    }
+
+                    itemDiv.innerHTML = `
+                        <div class="shop-item-info">
+                            <div class="shop-item-icon">${skill.icon}</div>
+                            <div>
+                                <div class="shop-item-name">${skill.name} <span style="color:#e67e22;">(Lv.${currentLv}/5)</span></div>
+                                <div style="font-size:0.8rem; color:#555; margin-bottom:2px;">${skill.desc}</div>
+                                <div style="font-size:0.85rem; color:#27ae60; font-weight:bold;">効果: ${skill.effects[currentLv]} ➔ 次: ${currentLv < 5 ? skill.effects[currentLv+1] : 'MAX'}</div>
+                            </div>
+                        </div>
+                        <div>${actionHtml}</div>
+                    `;
+                    shopListContainer.appendChild(itemDiv);
+                });
+            } 
+            else if (currentShopTab === "item") {
+                consumableData.forEach(item => {
+                    const count = saveData.items[item.id] || 0;
+                    const canBuy = saveData.totalSales >= item.cost;
+                    const itemDiv = document.createElement("div");
+                    itemDiv.className = "shop-item";
+
+                    itemDiv.innerHTML = `
+                        <div class="shop-item-info">
+                            <div class="shop-item-icon">${item.icon}</div>
+                            <div>
+                                <div class="shop-item-name">${item.name} <span style="color:#219653;">(所持: ${count}個)</span></div>
+                                <div style="font-size:0.8rem; color:#555; margin-bottom:2px;">${item.desc}</div>
+                                <div class="shop-item-cost">価格: ￥${item.cost.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="shop-btn" ${canBuy ? "" : "disabled"} onclick="buyConsumable('${item.id}', ${item.cost})">1個購入</button>
+                        </div>
+                    `;
+                    shopListContainer.appendChild(itemDiv);
+                });
+            }
         }
 
         window.buyMenu = function(id, cost) {
@@ -769,9 +913,69 @@
             }
         };
 
-        // --- 6. 食材貯蔵庫（オン/オフ切り替え）の生成 ---
+        window.upgradeSkill = function(id, cost) {
+            const currentLv = saveData.skills[id] || 0;
+            if (saveData.totalSales >= cost && currentLv < 5) {
+                saveData.totalSales -= cost;
+                saveData.skills[id] = currentLv + 1;
+                saveGameData();
+                cashSound.currentTime = 0;
+                cashSound.play().catch(e => {});
+                updateSalesDisplay();
+                renderShop();
+            }
+        };
+
+        window.buyConsumable = function(id, cost) {
+            if (saveData.totalSales >= cost) {
+                saveData.totalSales -= cost;
+                saveData.items[id] = (saveData.items[id] || 0) + 1;
+                saveGameData();
+                cashSound.currentTime = 0;
+                cashSound.play().catch(e => {});
+                updateSalesDisplay();
+                renderShop();
+            }
+        };
+
+        // --- 貯蔵庫（ON/OFF設定）描画 ---
         function renderStorage() {
-            storageListContainer.innerHTML = "";
+            storageMenuListContainer.innerHTML = "";
+            storageItemListContainer.innerHTML = "";
+
+            // 消費アイテムのスイッチ設置
+            consumableData.forEach(item => {
+                const count = saveData.items[item.id] || 0;
+                const isActive = saveData.itemSwitch[item.id];
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "shop-item";
+                
+                let toggleHtml = "";
+                if (count <= 0) {
+                    toggleHtml = `<span class="lock-text">未所持</span>`;
+                } else {
+                    toggleHtml = `
+                        <label class="switch">
+                            <input type="checkbox" ${isActive ? "checked" : ""} onchange="toggleItemSwitch('${item.id}', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    `;
+                }
+
+                itemDiv.innerHTML = `
+                    <div class="shop-item-info">
+                        <div class="shop-item-icon">${item.icon}</div>
+                        <div>
+                            <div class="shop-item-name">${item.name} <span style="color:#219653;">(在庫: ${count}個)</span></div>
+                            <div style="font-size:0.8rem; color:#7f8c8d;">${item.desc}<br><span style="color:#d35400;">※ONにすると次のゲーム開始時に1個自動消費されます。</span></div>
+                        </div>
+                    </div>
+                    <div>${toggleHtml}</div>
+                `;
+                storageItemListContainer.appendChild(itemDiv);
+            });
+
+            // メニュー出現ON/OFF
             shopCategories.forEach(item => {
                 const isUnlocked = saveData.unlocked[item.id];
                 const isActive = saveData.activeSwitch[item.id];
@@ -800,7 +1004,7 @@
                     </div>
                     <div>${toggleHtml}</div>
                 `;
-                storageListContainer.appendChild(itemDiv);
+                storageMenuListContainer.appendChild(itemDiv);
             });
         }
 
@@ -809,7 +1013,11 @@
             saveGameData();
         };
 
-        // --- 7. ローマ字入力パターン自動作成 ---
+        window.toggleItemSwitch = function(id, isChecked) {
+            saveData.itemSwitch[id] = isChecked;
+            saveGameData();
+        };
+
         function getRomajiVariants(baseRomaji) {
             let variants = [baseRomaji];
             const rules = [
@@ -841,7 +1049,7 @@
             return Array.from(visited);
         }
 
-        // --- 8. ゲーム実行システム ---
+        // --- ゲーム開始システム ---
         function startGame() {
             if (isMobile) mobileInput.focus();
 
@@ -850,8 +1058,27 @@
                 remainingWords = wordList.filter(word => word.category === "japan");
             }
 
+            // --- 永続スキル効果を初期タイムに適用 ---
+            const hourglassLv = saveData.skills.hourglass || 0;
+            timeLeft = 60 + (hourglassLv * 2); // 1Lvにつき+2秒 (最大70秒)
+
+            // --- 消費アイテムの適用と在庫消費チェック ---
+            activeDrinkEffect = false;
+            activeCurryEffect = false;
+
+            if (saveData.itemSwitch.drink && (saveData.items.drink || 0) > 0) {
+                activeDrinkEffect = true;
+                saveData.items.drink -= 1;
+                if (saveData.items.drink <= 0) saveData.itemSwitch.drink = false; // 在庫切れで自動OFF
+            }
+            if (saveData.itemSwitch.curry && (saveData.items.curry || 0) > 0) {
+                activeCurryEffect = true;
+                saveData.items.curry -= 1;
+                if (saveData.items.curry <= 0) saveData.itemSwitch.curry = false;
+            }
+            saveGameData();
+
             isPlaying = true;
-            timeLeft = 60;
             solvedWordCount = 0;
             totalCharCount = 0;
             totalMoney = 0; 
@@ -920,7 +1147,9 @@
             if (matchingVariants.length > 0) {
                 typedBuffer = nextBuffer;
                 totalCharCount++;
-                comboCount++;
+                
+                // 消費アイテム「栄養ドリンク」効果でコンボ上昇値2倍
+                comboCount += activeDrinkEffect ? 2 : 1;
                 if (comboCount > maxComboCount) maxComboCount = comboCount;
 
                 if (comboCount >= 3) {
@@ -961,13 +1190,27 @@
                     nextWord();
                 }
             } else {
+                // --- 永続スキル「ふかふかエプロン」判定 ---
+                const apronLv = saveData.skills.apron || 0;
+                const ignoreProbability = apronLv * 0.1; // 最大0.5 (50%)
+                
+                if (Math.random() < ignoreProbability) {
+                    // ミスをエプロンが無かったこと（ガード）にして終了
+                    comboCount = 0;
+                    comboContainer.textContent = "";
+                    return;
+                }
+
                 missCount++;
                 comboCount = 0; 
                 comboContainer.textContent = "";
                 
-                timeLeft = Math.max(0, timeLeft - 1);
-                timerElement.textContent = `残り時間: ${timeLeft} 秒`;
+                // 消費アイテム「激辛カレー」効果でペナルティ半減
+                const penaltyTime = activeCurryEffect ? 0.5 : 1.0;
+                timeLeft = Math.max(0, timeLeft - penaltyTime);
+                timerElement.textContent = `残り時間: ${Math.ceil(timeLeft)} 秒`;
                 
+                penaltyPopElement.textContent = activeCurryEffect ? "-0.5秒" : "-1秒";
                 penaltyPopElement.classList.remove("popup-animation");
                 void penaltyPopElement.offsetWidth; 
                 penaltyPopElement.classList.add("popup-animation");
@@ -1018,8 +1261,15 @@
             resultScreen.classList.remove("hidden");
             if (isMobile) mobileInput.blur();
 
-            const tax = Math.floor(totalMoney * 0.1);
-            const grandTotal = totalMoney + tax; 
+            let subtotal = totalMoney;
+            
+            // --- 永続スキル「黄金のフライパン」倍率ボーナスを適用 ---
+            const panLv = saveData.skills.pan || 0;
+            const panMultiplier = 1.0 + (panLv * 0.1); // 最大1.5倍
+            subtotal = Math.floor(subtotal * panMultiplier);
+
+            const tax = Math.floor(subtotal * 0.1);
+            const grandTotal = subtotal + tax; 
 
             saveData.totalSales += grandTotal;
             saveGameData();
@@ -1036,11 +1286,16 @@
 
             let receiptItemsHtml = "";
             orderHistory.forEach(item => {
-                receiptItemsHtml += `<div class="receipt-row"><span>・${item.name}</span><span>￥${item.price.toLocaleString()}</span></div>`;
+                receiptItemsHtml += `<div class="receipt-row"><span>・${item.name}</span><span>￥${Math.floor(item.price * panMultiplier).toLocaleString()}</span></div>`;
             });
             if (orderHistory.length === 0) {
                 receiptItemsHtml = `<div class="receipt-row" style="color:#7f8c8d;"><span>（何も食べられませんでした）</span></div>`;
             }
+
+            let activeItemsText = [];
+            if (activeDrinkEffect) activeItemsText.push("🧪ドリンク(コンボ2倍)");
+            if (activeCurryEffect) activeItemsText.push("🍛激辛カレー(ミス軽減)");
+            let itemSectionHtml = activeItemsText.length > 0 ? `<div style="font-size:0.8rem; color:#27ae60; text-align:center; margin-bottom:5px;">使用アイテム: ${activeItemsText.join(" / ")}</div>` : "";
 
             resultElement.innerHTML = `
                 <div class="receipt" id="receipt-box">
@@ -1048,12 +1303,13 @@
                     <div class="receipt-subtitle">${dateStr}  伝票明細</div>
                     <div class="receipt-line"></div>
                     <div style="text-align: center; font-weight: bold; font-size: 1.1rem; margin: 10px 0; color: #2c3e50;">称号：${rankName}</div>
+                    ${itemSectionHtml}
                     <div class="receipt-line"></div>
                     <div class="receipt-row" style="font-weight: bold; color: #e67e22;"><span>最高連続コンボ</span><span>${maxComboCount} Combo!</span></div>
                     <div class="receipt-line"></div>
                     <div class="receipt-item-list" id="receipt-list">${receiptItemsHtml}</div>
                     <div class="receipt-line"></div>
-                    <div class="receipt-row"><span>税抜小計 (${solvedWordCount}品)</span><span>￥${totalMoney.toLocaleString()}</span></div>
+                    <div class="receipt-row"><span>税抜小計 (${solvedWordCount}品${panLv > 0 ? '・フライパン倍率込' : ''})</span><span>￥${subtotal.toLocaleString()}</span></div>
                     <div class="receipt-row"><span>消費税 (10%)</span><span>￥${tax.toLocaleString()}</span></div>
                     <div class="receipt-line"></div>
                     <div class="receipt-bold-row"><span>今回獲得した売上(税込)</span><span>￥${grandTotal.toLocaleString()}</span></div>
@@ -1101,9 +1357,9 @@
             };
         }
 
-        // --- 9. ギガ盛り追加：全250単語以上の国別・ジャンル別データ ---
+        // --- 単語データリスト ---
         const wordList = [
-            // 日本食 (japan) - 36単語
+            // 日本食 (japan)
             { category: "japan", ja: "おにぎり", romaji: "onigiri" },
             { category: "japan", ja: "みそ汁", romaji: "misoshiru" },
             { category: "japan", ja: "お寿司", romaji: "osushi" },
@@ -1138,10 +1394,9 @@
             { category: "japan", ja: "納豆ご飯", romaji: "nattougohan" },
             { category: "japan", ja: "鯖の味噌煮", romaji: "sabanomisoni" },
             { category: "japan", ja: "出し巻き卵", romaji: "dashimakitamago" },
-            { category: "japan", ja: "筑前煮", romaji: "chikuzenni" },
             { category: "japan", ja: "そぼろ丼", romaji: "soborodon" },
 
-            // 中華料理 (china) - 34単語
+            // 中華料理 (china)
             { category: "china", ja: "ラーメン", romaji: "ra-men" },
             { category: "china", ja: "ギョーザ", romaji: "gyo-za" },
             { category: "china", ja: "チャーハン", romaji: "cha-han" },
@@ -1171,13 +1426,12 @@
             { category: "china", ja: "カニ玉", romaji: "kanitama" },
             { category: "china", ja: "ちまき", romaji: "chimaki" },
             { category: "china", ja: "水餃子", romaji: "suigyouza" },
-            { category: "china", ja: "回鍋肉", romaji: "hoiko-rou" },
             { category: "china", ja: "小豆粥", romaji: "azukigayu" },
             { category: "china", ja: "油条", romaji: "yu-jau" },
             { category: "china", ja: "マンゴープリン", romaji: "mango-purin" },
             { category: "china", ja: "烏龍茶ゼリー", romaji: "u-ronchazeri-" },
 
-            // アメリカン (america) - 32単語
+            // アメリカン (america)
             { category: "america", ja: "ハンバーグ", romaji: "hanba-gu" },
             { category: "america", ja: "フライドポテト", romaji: "furaidopoteto" },
             { category: "america", ja: "ハンバーガー", romaji: "hanba-ga-" },
@@ -1204,14 +1458,13 @@
             { category: "america", ja: "チリコンカン", romaji: "chirikonkan" },
             { category: "america", ja: "パンケーキ", romaji: "panke-ki" },
             { category: "america", ja: "ドナツ", romaji: "do-natsu" },
-            { category: "america", ja: "ジャコカツ", romaji: "jakokatsu" },
             { category: "america", ja: "ハッシュポテト", romaji: "hasshupoteto" },
             { category: "america", ja: "ビスケット", romaji: "bisuketto" },
             { category: "america", ja: "チーズカーズ", romaji: "chi-zuka-zu" },
             { category: "america", ja: "ルートビア", romaji: "ru-tobia" },
             { category: "america", ja: "サンデー", romaji: "sande-" },
 
-            // イタリアン (italy) - 32単語
+            // イタリアン (italy)
             { category: "italy", ja: "オムライス", romaji: "omuraisu" },
             { category: "italy", ja: "ピザ", romaji: "piza" },
             { category: "italy", ja: "スパゲッティ", romaji: "supagetti" },
@@ -1243,9 +1496,8 @@
             { category: "italy", ja: "ニョッキ", romaji: "nyokki" },
             { category: "italy", ja: "パニーニ", romaji: "pani-ni" },
             { category: "italy", ja: "ビスコッティ", romaji: "bisukotti" },
-            { category: "italy", ja: "ゼッポリーレ", romaji: "zeppori-re" },
 
-            // スイーツ・カフェ (sweet) - 40単語
+            // スイーツ・カフェ (sweet)
             { category: "sweet", ja: "プリン", romaji: "purin" },
             { category: "sweet", ja: "パンケーキ", romaji: "panke-ki" },
             { category: "sweet", ja: "メロンパン", romaji: "meronpan" },
@@ -1277,17 +1529,12 @@
             { category: "sweet", ja: "クレープ", romaji: "kure-pu" },
             { category: "sweet", ja: "ワッフル", romaji: "waffuru" },
             { category: "sweet", ja: "シフォンケーキ", romaji: "shifonke-ki" },
-            { category: "sweet", ja: "マドレーヌ", romaji: "madore-nu" },
-            { category: "sweet", ja: "スコーン", romaji: "suko-n" },
-            { category: "sweet", ja: "パウンドケーキ", romaji: "paundoke-ki" },
-            { category: "sweet", ja: "カステラ", romaji: "kasutera" },
             { category: "sweet", ja: "どら焼き", romaji: "dorayaki" },
             { category: "sweet", ja: "大福", romaji: "daifuku" },
             { category: "sweet", ja: "チュロス", romaji: "churosu" },
             { category: "sweet", ja: "ロールケーキ", romaji: "ro-ruke-ki" },
-            { category: "sweet", ja: "ガレット", romaji: "garetto" },
 
-            // アジアンエスニック (asia) - 30単語
+            // アジアンエスニック (asia)
             { category: "asia", ja: "テンペ", romaji: "tenpe" },
             { category: "asia", ja: "ビビンバ", romaji: "bibinba" },
             { category: "asia", ja: "タコライス", romaji: "takoraisu" },
@@ -1309,17 +1556,13 @@
             { category: "asia", ja: "冷麺", romaji: "reimen" },
             { category: "asia", ja: "サムゲタン", romaji: "samugetan" },
             { category: "asia", ja: "サテ", romaji: "sate" },
-            { category: "asia", ja: "ガドガド", romaji: "gadogado" },
             { category: "asia", ja: "ミーゴレン", romaji: "mi-goren" },
-            { category: "asia", ja: "ラクサ", romaji: "rakusa" },
             { category: "asia", ja: "バインミー", romaji: "bainmi-" },
             { category: "asia", ja: "ナン", romaji: "nan" },
-            { category: "asia", ja: "サモサ", romaji: "samosa" },
             { category: "asia", ja: "キーマカレー", romaji: "ki-maka-re-" },
-            { category: "asia", ja: "ラッシー", romaji: "rasshi-" },
             { category: "asia", ja: "ビリヤニ", romaji: "biriyani" },
 
-            // ヨーロピアン (europe) - 30単語
+            // ヨーロピアン (europe)
             { category: "europe", ja: "たこ焼き", romaji: "takoyaki" }, 
             { category: "europe", ja: "から揚げ", romaji: "karaage" },
             { category: "europe", ja: "エビフライ", romaji: "ebifurai" },
@@ -1339,19 +1582,14 @@
             { category: "europe", ja: "チーズフォンデュ", romaji: "chi-zufondyu" },
             { category: "europe", ja: "ボルシチ", romaji: "borushichi" },
             { category: "europe", ja: "シュニッツェル", romaji: "shunittseru" },
-            { category: "europe", ja: "エスカロップ", romaji: "esukaroppu" },
-            { category: "europe", ja: "ガレット", romaji: "garetto" },
             { category: "europe", ja: "キッシュ", romaji: "kisshu" },
             { category: "europe", ja: "エスカルゴ", romaji: "esukarugo" },
-            { category: "europe", ja: "フリット", romaji: "furitto" },
-            { category: "europe", ja: "ゴーフレット", romaji: "go-furetto" },
             { category: "europe", ja: "ソーセージ", romaji: "so-se-ji" },
             { category: "europe", ja: "プレッツェル", romaji: "purettseru" },
             { category: "europe", ja: "ザワークラウト", romaji: "zawa-kurauto" },
-            { category: "europe", ja: "アイントプフ", romaji: "aintopufu" },
             { category: "europe", ja: "パテ", romaji: "pate" },
 
-            // 宇宙の謎グルメ (space) - 20単語
+            // 宇宙の謎グルメ (space)
             { category: "space", ja: "火星パフェ", romaji: "kaseipafe" },
             { category: "space", ja: "スペースナポリタン", romaji: "supe-sunaporitan" },
             { category: "space", ja: "銀河チャーハン", romaji: "gingachashan" },
