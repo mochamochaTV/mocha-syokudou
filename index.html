@@ -233,15 +233,6 @@
             display: none !important;
         }
 
-        .credit-box {
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px dashed #bdc3c7;
-            font-size: 0.8rem;
-            color: #7f8c8d;
-            line-height: 1.5;
-        }
-
         .receipt {
             background-color: #ffffff;
             color: #2c3e50;
@@ -317,6 +308,50 @@
             background: transparent;
         }
 
+        /* トロフィールームのスタイル設定 */
+        .trophy-room-container {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1 / 0.88; /* 画像の比率に合わせる */
+            margin: 0 auto 25px auto;
+            background-image: url('IMG_4998.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+
+        /* 6つの台座の上にトロフィーを絶対配置 */
+        .trophy-spot {
+            position: absolute;
+            width: 16%;
+            height: 20%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .trophy-spot:hover {
+            transform: scale(1.15);
+        }
+        .trophy-locked {
+            opacity: 0.15;
+            filter: grayscale(100%);
+            font-size: 1.8rem;
+        }
+
+        /* 各台座の座標（画像の位置にフィットさせています） */
+        #trophy-0 { top: 16%; left: 11%; }
+        #trophy-1 { top: 16%; left: 42%; }
+        #trophy-2 { top: 16%; left: 73%; }
+        #trophy-3 { top: 58%; left: 11%; }
+        #trophy-4 { top: 58%; left: 42%; }
+        #trophy-5 { top: 58%; left: 73%; }
+
         /* ショップタブ */
         .shop-tabs {
             display: flex;
@@ -339,7 +374,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            max-height: 380px;
+            max-height: 350px;
             overflow-y: auto;
             padding-right: 5px;
             margin-bottom: 20px;
@@ -486,6 +521,8 @@
             .shop-item { padding: 10px; flex-direction: column; gap: 8px; align-items: center; text-align: center; }
             .shop-item-info { flex-direction: column; gap: 4px; text-align: center; }
             .shop-btn { width: 100%; }
+            .trophy-spot { font-size: 1.8rem; }
+            .trophy-locked { font-size: 1.3rem; }
         }
     </style>
 </head>
@@ -507,7 +544,7 @@
             <div class="vertical-btn-group">
                 <button id="start-btn">注文開始！</button>
                 <button id="to-shop-btn" style="background-color: #34495e; box-shadow: 0 5px 0 #2c3e50;">🔨 メニュー・設備開発</button>
-                <button id="to-storage-btn" style="background-color: #27ae60; box-shadow: 0 5px 0 #219653;">📦 食材・アイテム貯蔵庫</button>
+                <button id="to-storage-btn" style="background-color: #27ae60; box-shadow: 0 5px 0 #219653;">🏆 トロフィー＆貯蔵庫</button>
             </div>
 
             <div class="debug-box">
@@ -533,12 +570,20 @@
         </div>
 
         <div id="storage-screen" class="hidden">
-            <h2>📦 食材・アイテム・スキル貯蔵庫</h2>
-            <p style="font-size: 0.9rem; margin-bottom: 15px; color: #555;">
-                出現メニューの調整、消費アイテムの持ち込み、スキルのレベル変更（ON/OFF）が可能です。
-            </p>
+            <h2>🏆 もっちゃの特設トロフィールーム</h2>
             
-            <div style="max-height: 480px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
+            <div class="trophy-room-container" id="trophy-room-box">
+                <div id="trophy-0" class="trophy-spot" onclick="alertTrophy(0)"></div>
+                <div id="trophy-1" class="trophy-spot" onclick="alertTrophy(1)"></div>
+                <div id="trophy-2" class="trophy-spot" onclick="alertTrophy(2)"></div>
+                <div id="trophy-3" class="trophy-spot" onclick="alertTrophy(3)"></div>
+                <div id="trophy-4" class="trophy-spot" onclick="alertTrophy(4)"></div>
+                <div id="trophy-5" class="trophy-spot" onclick="alertTrophy(5)"></div>
+            </div>
+
+            <h2>📦 食材・アイテム・スキル貯蔵庫</h2>
+            
+            <div style="max-height: 320px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
                 <div class="storage-section-title">🎒 次回持ち込み消費アイテム（使い切り）</div>
                 <div class="shop-list" id="storage-item-list-container" style="max-height:none; margin-bottom:0;"></div>
 
@@ -636,12 +681,10 @@
         let maxComboCount = 0;
         let currentShopTab = "menu"; 
 
-        // アクティブ消費アイテム
         let activeDrinkEffect = false;
         let activeCurryEffect = false;
-        let activeBentoEffect = false; // お弁当箱エフェクト
+        let activeBentoEffect = false;
 
-        // 各カテゴリーの新メニュー開発ボーナス定額表
         const categoryBonusConfig = {
             china: { name: "中華料理開発お祝い", perCount: 500 },
             america: { name: "アメリカン開発お祝い", perCount: 1500 },
@@ -676,6 +719,16 @@
             { id: "bento", name: "もっちゃ特製お弁当箱", icon: "🍱", cost: 50000, desc: "次の1ゲームのみ、レシート末尾の【新メニュー開発ボーナス】がすべて1.5倍に跳ね上がる！" }
         ];
 
+        // トロフィーの基本設定
+        const trophyConfig = [
+            { name: "ブロンズもっちゃ像", icon: "🥉", desc: "1ゲームの売上が￥10,000に到達する" },
+            { name: "シルバーもっちゃ像", icon: "🥈", desc: "1ゲームの売上が￥100,000に到達する" },
+            { name: "ゴールドもっちゃ像", icon: "🥇", desc: "累計売上が￥1,000,000を突破する" },
+            { name: "コンボマスターリボン", icon: "🎀", desc: "1ゲーム中に「20連続コンボ」以上を達成する" },
+            { name: "一流料理人のコック帽", icon: "👨‍🍳", desc: "ミス3回以下かつ、1ゲームで30皿以上提供する" },
+            { name: "もっちゃ天帝の王冠", icon: "👑", desc: "1ゲームの売上が￥1,000,000に到達する（天帝の証）" }
+        ];
+
         let saveData = {
             totalSales: 0,
             unlocked: { japan: true, china: false, america: false, italy: false, sweet: false, asia: false, europe: false, space: false },
@@ -683,11 +736,12 @@
             skills: { apron: 0, hourglass: 0, pan: 0, megaphone: 0 },         
             equippedSkills: { apron: 0, hourglass: 0, pan: 0, megaphone: 0 }, 
             items: { drink: 0, curry: 0, bento: 0 },
-            itemSwitch: { drink: false, curry: false, bento: false }
+            itemSwitch: { drink: false, curry: false, bento: false },
+            trophies: [false, false, false, false, false, false] // トロフィー獲得状況
         };
 
         function loadGameData() {
-            const saved = localStorage.getItem("moccha_shokudo_v6_data");
+            const saved = localStorage.getItem("moccha_shokudo_v7_data");
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -699,6 +753,7 @@
                         saveData.equippedSkills = Object.assign(saveData.equippedSkills, parsed.equippedSkills);
                         saveData.items = Object.assign(saveData.items, parsed.items);
                         saveData.itemSwitch = Object.assign(saveData.itemSwitch, parsed.itemSwitch);
+                        if (parsed.trophies) saveData.trophies = parsed.trophies;
                     }
                 } catch(e) { console.log("データロード失敗", e); }
             }
@@ -706,7 +761,7 @@
         }
 
         function saveGameData() {
-            localStorage.setItem("moccha_shokudo_v6_data", JSON.stringify(saveData));
+            localStorage.setItem("moccha_shokudo_v7_data", JSON.stringify(saveData));
         }
 
         function updateSalesDisplay() {
@@ -751,6 +806,7 @@
 
         document.getElementById("debug-money-btn").addEventListener("click", () => {
             saveData.totalSales += 1000000;
+            if (saveData.totalSales >= 1000000) saveData.trophies[2] = true; // 累計ボーナスチェック
             saveGameData();
             updateSalesDisplay();
             cashSound.currentTime = 0; cashSound.play().catch(e=>{});
@@ -895,6 +951,18 @@
         };
 
         function renderStorage() {
+            // トロフィーの表示更新
+            for (let i = 0; i < 6; i++) {
+                const spot = document.getElementById(`trophy-${i}`);
+                if (saveData.trophies[i]) {
+                    spot.textContent = trophyConfig[i].icon;
+                    spot.classList.remove("trophy-locked");
+                } else {
+                    spot.textContent = "❓";
+                    spot.classList.add("trophy-locked");
+                }
+            }
+
             storageMenuListContainer.innerHTML = "";
             storageItemListContainer.innerHTML = "";
             storageSkillListContainer.innerHTML = "";
@@ -984,6 +1052,16 @@
             });
         }
 
+        window.alertTrophy = function(index) {
+            const config = trophyConfig[index];
+            const isUnlocked = saveData.trophies[index];
+            if (isUnlocked) {
+                alert(`🏆【${config.name}】獲得済み！\n条件: ${config.desc}`);
+            } else {
+                alert(`🔒【未解放のトロフィー台座】\n獲得条件: ${config.desc}`);
+            }
+        };
+
         window.toggleCategory = function(id, isChecked) { saveData.activeSwitch[id] = isChecked; saveGameData(); };
         window.toggleItemSwitch = function(id, isChecked) { saveData.itemSwitch[id] = isChecked; saveGameData(); };
         window.changeSkillLevel = function(id, value) { saveData.equippedSkills[id] = parseInt(value, 10); saveGameData(); };
@@ -1039,7 +1117,8 @@
 
             isPlaying = true; solvedWordCount = 0; totalCharCount = 0; totalOriginalMoney = 0; missCount = 0; comboCount = 0; maxComboCount = 0; orderHistory = []; 
             
-            startScreen.classList.add("hidden"); resultScreen.classList.add("hidden"); gameScreen.classList.remove("hidden");
+            startScreen.classList.add("hidden"); resultScreen.classList.add("hidden"); gameScreen.remove classList.add("hidden");
+            gameScreen.classList.remove("hidden");
             document.body.classList.add("ingame");
             penaltyPopElement.classList.remove("popup-animation"); timerElement.classList.remove("shake-animation"); comboContainer.textContent = ""; 
             resetCharacterImg();
@@ -1169,7 +1248,6 @@
             gameScreen.classList.add("hidden"); resultScreen.classList.remove("hidden");
             if (isMobile) mobileInput.blur();
 
-            // 1. 各商品は元の単価のままレシート出力
             let receiptItemsHtml = "";
             let categoryCounts = { china:0, america:0, italy:0, sweet:0, asia:0, europe:0, space:0 };
 
@@ -1181,10 +1259,8 @@
             });
             if (orderHistory.length === 0) { receiptItemsHtml = `<div class="receipt-row" style="color:#7f8c8d;"><span>（客足ゼロ）</span><span>￥0</span></div>`; }
 
-            // 2. 基本料理小計
             let subtotal = totalOriginalMoney;
 
-            // 3. フライパンなどの倍率ボーナス
             const panLv = saveData.equippedSkills.pan || 0;
             const panBonusRatio = panLv * 0.1; 
             const panBonusMoney = Math.floor(subtotal * panBonusRatio);
@@ -1194,11 +1270,9 @@
                 drinkBonusMoney = Math.floor(subtotal * 0.15); 
             }
 
-            // 4. 【追加要素】新メニュー開発定額ボーナス（出現回数分配信）
             let developmentBonusMoney = 0;
             let bonusRowsHtml = "";
 
-            // フライパンなどのおまけ行
             if (panBonusMoney > 0) {
                 bonusRowsHtml += `<div class="receipt-bonus-row"><span>└ 🍳 黄金のフライパン(Lv.${panLv})</span><span>+￥${panBonusMoney.toLocaleString()}</span></div>`;
             }
@@ -1206,11 +1280,9 @@
                 bonusRowsHtml += `<div class="receipt-bonus-row"><span>└ 🧪 栄養ドリンク(大入りコンボ)</span><span>+￥${drinkBonusMoney.toLocaleString()}</span></div>`;
             }
 
-            // 新メニューの各ジャンル別の計算
             for (let cat in categoryBonusConfig) {
                 if (categoryCounts[cat] > 0) {
                     let basePerCount = categoryBonusConfig[cat].perCount;
-                    // お弁当箱効果がある場合は定額が1.5倍に
                     if (activeBentoEffect) {
                         basePerCount = Math.floor(basePerCount * 1.5);
                     }
@@ -1223,12 +1295,28 @@
                 }
             }
 
-            // 税抜総合計の算出 (基本売上 + フライパン類ボーナス + メニュー開発定額ボーナス)
             const finalSubtotal = subtotal + panBonusMoney + drinkBonusMoney + developmentBonusMoney;
             const tax = Math.floor(finalSubtotal * 0.1);
             const grandTotal = finalSubtotal + tax; 
 
-            saveData.totalSales += grandTotal; saveGameData();
+            // 🏆 トロフィー解放判定ロジック
+            let trophyAlerts = [];
+            if (grandTotal >= 10000 && !saveData.trophies[0]) { saveData.trophies[0] = true; trophyAlerts.push(trophyConfig[0].name); }
+            if (grandTotal >= 100000 && !saveData.trophies[1]) { saveData.trophies[1] = true; trophyAlerts.push(trophyConfig[1].name); }
+            if (maxComboCount >= 20 && !saveData.trophies[3]) { saveData.trophies[3] = true; trophyAlerts.push(trophyConfig[3].name); }
+            if (missCount <= 3 && solvedWordCount >= 30 && !saveData.trophies[4]) { saveData.trophies[4] = true; trophyAlerts.push(trophyConfig[4].name); }
+            if (grandTotal >= 1000000 && !saveData.trophies[5]) { saveData.trophies[5] = true; trophyAlerts.push(trophyConfig[5].name); }
+
+            saveData.totalSales += grandTotal; 
+            if (saveData.totalSales >= 1000000 && !saveData.trophies[2]) { saveData.trophies[2] = true; trophyAlerts.push(trophyConfig[2].name); }
+            
+            saveGameData();
+
+            if (trophyAlerts.length > 0) {
+                setTimeout(() => {
+                    alert(`✨🏆 トロフィー獲得！！ 🏆✨\n\n・${trophyAlerts.join('\n・')}\n\n「トロフィー＆貯蔵庫」に飾られました！`);
+                }, 800);
+            }
 
             let rankName = "お腹ペコペコ一般人";
             if (grandTotal === 0) rankName = "ただの通行人";
@@ -1391,13 +1479,13 @@
             { category: "america", ja: "ブラウニー", romaji: "burauni-" },
             { category: "america", ja: "クラムチャウダー", romaji: "kuramuchauda-" },
             { category: "america", ja: "パンプキンパイ", romaji: "panpukinpai" },
-            { category: "america", ja: "マフィン", romaji: "mafin" },
+            { category: "america", ja: "マuffin", romaji: "mafin" },
             { category: "america", ja: "ベーグル", romaji: "be-guru" },
             { category: "america", ja: "ミートローフ", romaji: "mi-toro-fu" },
             { category: "america", ja: "プルドポーク", romaji: "purudopo-ku" },
             { category: "america", ja: "チリコンカン", romaji: "chirikonkan" },
             { category: "america", ja: "パンケーキ", romaji: "panke-ki" },
-            { category: "america", ja: "ドナツ", romaji: "do-natsu" },
+            { category: "america", ja: "ドーナツ", romaji: "do-natsu" },
             { category: "america", ja: "ハッシュポテト", romaji: "hasshupoteto" },
             { category: "america", ja: "ビスケット", romaji: "bisuketto" },
             { category: "america", ja: "チーズカーズ", romaji: "chi-zuka-zu" },
@@ -1485,7 +1573,7 @@
             { category: "asia", ja: "トムヤムクン", romaji: "tomuyamukun" },
             { category: "asia", ja: "ガパオライス", romaji: "gapaoraisu" },
             { category: "asia", ja: "ナシゴレン", romaji: "nashigoren" },
-            { category: "asia", ja: "タンドリーチキン", romaji: "tandori-chikin" },
+            { category: "asia", ja: "タンドリーチチキン", romaji: "tandori-chikin" },
             { category: "asia", ja: "グリーンカレー", romaji: "guri-nka-re-" },
             { category: "asia", ja: "パッタイ", romaji: "pattai" },
             { category: "asia", ja: "フォー", romaji: "fo-" },
