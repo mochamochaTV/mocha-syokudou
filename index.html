@@ -209,6 +209,21 @@
             cursor: not-allowed;
         }
 
+        /* 縦並びボタン用のコンテナと個別スタイル */
+        .vertical-btn-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .vertical-btn-group button {
+            width: 80%;
+            max-width: 320px;
+        }
+
         .sub-btn {
             font-size: 1.1rem;
             padding: 10px 20px;
@@ -302,7 +317,6 @@
             background: transparent;
         }
 
-        /* === ショップ＆貯蔵庫画面用のスタイル === */
         .shop-list {
             display: flex;
             flex-direction: column;
@@ -363,7 +377,6 @@
             box-shadow: 0 3px 0 #d35400;
         }
 
-        /* トグルスイッチのスタイル */
         .switch {
             position: relative;
             display: inline-block;
@@ -423,6 +436,7 @@
             #word-ja { font-size: 1.6rem; }
             #word-romaji { font-size: 1.4rem; letter-spacing: 1px; margin-bottom: 15px; }
             button { font-size: 1.15rem; padding: 8px 15px; }
+            .vertical-btn-group button { width: 100%; max-width: none; }
             .sub-btn { font-size: 0.9rem; padding: 6px 12px; }
             .receipt { padding: 15px; font-size: 0.85rem; margin: 10px auto; }
             .receipt-title { font-size: 1.1rem; }
@@ -449,8 +463,8 @@
 
             <img src="normal.png" alt="キャラクター" style="width: 120px; margin-bottom: 15px;"><br>
             
-            <!-- メニューボタンエリア -->
-            <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <!-- 縦並びメニューボタンエリア（注文開始が一番上） -->
+            <div class="vertical-btn-group">
                 <button id="start-btn">注文開始！</button>
                 <button id="to-shop-btn" style="background-color: #34495e; box-shadow: 0 5px 0 #2c3e50;">🔨 メニュー開発</button>
                 <button id="to-storage-btn" style="background-color: #27ae60; box-shadow: 0 5px 0 #219653;">📦 食材貯蔵庫</button>
@@ -587,7 +601,6 @@
         let comboCount = 0;
         let maxComboCount = 0;
 
-        // ショップ情報の一覧
         const shopCategories = [
             { id: "japan", name: "日本食", cost: 0, icon: "🍱", desc: "初期解放済みの馴染み深い和食" },
             { id: "china", name: "中華料理", cost: 150000, icon: "🐼", desc: "漢字の読みが多いテンポ抜群メニュー" },
@@ -599,7 +612,6 @@
             { id: "space", name: "宇宙の謎グルメ", cost: 100000000, icon: "🛸", desc: "前人未到の1億円！伝説の宇宙飯" }
         ];
 
-        // セーブデータ構造（新システム対応）
         let saveData = {
             totalSales: 0,
             unlocked: { japan: true, china: false, america: false, italy: false, sweet: false, asia: false, europe: false, space: false },
@@ -612,7 +624,6 @@
                 try {
                     const parsed = JSON.parse(saved);
                     if (parsed && typeof parsed.totalSales === 'number') {
-                        // データ構造の補完
                         saveData.totalSales = parsed.totalSales || 0;
                         saveData.unlocked = Object.assign(saveData.unlocked, parsed.unlocked);
                         saveData.activeSwitch = Object.assign(saveData.activeSwitch, parsed.activeSwitch);
@@ -749,7 +760,7 @@
             if (saveData.totalSales >= cost && !saveData.unlocked[id]) {
                 saveData.totalSales -= cost;
                 saveData.unlocked[id] = true;
-                saveData.activeSwitch[id] = true; // 解放時は初期自動ON
+                saveData.activeSwitch[id] = true;
                 saveGameData();
                 cashSound.currentTime = 0;
                 cashSound.play().catch(e => {});
@@ -834,10 +845,7 @@
         function startGame() {
             if (isMobile) mobileInput.focus();
 
-            // 「解放済み」かつ「トグルがON」のジャンルの単語だけを抽出
             remainingWords = wordList.filter(word => saveData.unlocked[word.category] && saveData.activeSwitch[word.category]);
-            
-            // 安全策：もし何もONになっていない場合は「日本食」を強制強制選出
             if (remainingWords.length === 0) {
                 remainingWords = wordList.filter(word => word.category === "japan");
             }
@@ -1093,9 +1101,9 @@
             };
         }
 
-        // --- 10. 大幅にボリュームアップした国別単語データ（全140単語以上） ---
+        // --- 9. ギガ盛り追加：全250単語以上の国別・ジャンル別データ ---
         const wordList = [
-            // 日本食 (japan)
+            // 日本食 (japan) - 36単語
             { category: "japan", ja: "おにぎり", romaji: "onigiri" },
             { category: "japan", ja: "みそ汁", romaji: "misoshiru" },
             { category: "japan", ja: "お寿司", romaji: "osushi" },
@@ -1118,8 +1126,22 @@
             { category: "japan", ja: "茶碗蒸し", romaji: "chawanmushi" },
             { category: "japan", ja: "焼き鳥", romaji: "yakitori" },
             { category: "japan", ja: "とんかつ", romaji: "tonkatsu" },
+            { category: "japan", ja: "冷や奴", romaji: "hiyayakko" },
+            { category: "japan", ja: "きつねうどん", romaji: "kitsuneudon" },
+            { category: "japan", ja: "天ぷらそば", romaji: "tenpurasoba" },
+            { category: "japan", ja: "うな重", romaji: "unajuu" },
+            { category: "japan", ja: "卵かけご飯", romaji: "tamagokakegohan" },
+            { category: "japan", ja: "いなり寿司", romaji: "inarizushi" },
+            { category: "japan", ja: "冷やし中華", romaji: "hiyashichuuka" },
+            { category: "japan", ja: "鯛の塩焼き", romaji: "tainoshioyaki" },
+            { category: "japan", ja: "茶漬け", romaji: "chazuke" },
+            { category: "japan", ja: "納豆ご飯", romaji: "nattougohan" },
+            { category: "japan", ja: "鯖の味噌煮", romaji: "sabanomisoni" },
+            { category: "japan", ja: "出し巻き卵", romaji: "dashimakitamago" },
+            { category: "japan", ja: "筑前煮", romaji: "chikuzenni" },
+            { category: "japan", ja: "そぼろ丼", romaji: "soborodon" },
 
-            // 中華料理 (china)
+            // 中華料理 (china) - 34単語
             { category: "china", ja: "ラーメン", romaji: "ra-men" },
             { category: "china", ja: "ギョーザ", romaji: "gyo-za" },
             { category: "china", ja: "チャーハン", romaji: "cha-han" },
@@ -1128,7 +1150,6 @@
             { category: "china", ja: "麻婆豆腐", romaji: "ma-bo-doufu" },
             { category: "china", ja: "回鍋肉", romaji: "hoikorou" },
             { category: "china", ja: "酢豚", romaji: "subuta" },
-            { category: "china", ja: "冷やし中華", romaji: "hiyashichuuka" },
             { category: "china", ja: "ごま団子", romaji: "gomadango" },
             { category: "china", ja: "杏仁豆腐", romaji: "annindoufu" },
             { category: "china", ja: "エビチリ", romaji: "ebichiri" },
@@ -1138,9 +1159,25 @@
             { category: "china", ja: "春巻き", romaji: "harumaki" },
             { category: "china", ja: "シュウマイ", romaji: "shuumai" },
             { category: "china", ja: "北京ダック", romaji: "pekindakku" },
-            { category: "china", ja: "油淋鶏", xromaji: "yuurinchii" },
+            { category: "china", ja: "油淋鶏", romaji: "yuurinchii" },
+            { category: "china", ja: "エビマヨ", romaji: "ebimayo" },
+            { category: "china", ja: "酸辣湯", romaji: "sanra-tan" },
+            { category: "china", ja: "ワンタン麺", romaji: "wantanmen" },
+            { category: "china", ja: "ジャージャー麺", romaji: "ja-ja-men" },
+            { category: "china", ja: "麻婆茄子", romaji: "ma-bo-nasu" },
+            { category: "china", ja: "八宝菜", romaji: "happousai" },
+            { category: "china", ja: "棒棒鶏", romaji: "banbanji-" },
+            { category: "china", ja: "フカヒレスープ", romaji: "fukahiresu-pu" },
+            { category: "china", ja: "カニ玉", romaji: "kanitama" },
+            { category: "china", ja: "ちまき", romaji: "chimaki" },
+            { category: "china", ja: "水餃子", romaji: "suigyouza" },
+            { category: "china", ja: "回鍋肉", romaji: "hoiko-rou" },
+            { category: "china", ja: "小豆粥", romaji: "azukigayu" },
+            { category: "china", ja: "油条", romaji: "yu-jau" },
+            { category: "china", ja: "マンゴープリン", romaji: "mango-purin" },
+            { category: "china", ja: "烏龍茶ゼリー", romaji: "u-ronchazeri-" },
 
-            // アメリカン (america)
+            // アメリカン (america) - 32単語
             { category: "america", ja: "ハンバーグ", romaji: "hanba-gu" },
             { category: "america", ja: "フライドポテト", romaji: "furaidopoteto" },
             { category: "america", ja: "ハンバーガー", romaji: "hanba-ga-" },
@@ -1154,8 +1191,27 @@
             { category: "america", ja: "バッファローチキン", romaji: "baffaro-chikin" },
             { category: "america", ja: "マカロニチーズ", romaji: "makaronichi-zu" },
             { category: "america", ja: "コールスロー", romaji: "ko-rusuro-" },
+            { category: "america", ja: "チーズバーガー", romaji: "chi-zuba-ga-" },
+            { category: "america", ja: "フライドチキン", romaji: "furaidochikin" },
+            { category: "america", ja: "チョコチップクッキー", romaji: "chokochippukukki-" },
+            { category: "america", ja: "ブラウニー", romaji: "burauni-" },
+            { category: "america", ja: "クラムチャウダー", romaji: "kuramuchauda-" },
+            { category: "america", ja: "パンプキンパイ", romaji: "panpukinpai" },
+            { category: "america", ja: "マフィン", romaji: "mafin" },
+            { category: "america", ja: "ベーグル", romaji: "be-guru" },
+            { category: "america", ja: "ミートローフ", romaji: "mi-toro-fu" },
+            { category: "america", ja: "プルドポーク", romaji: "purudopo-ku" },
+            { category: "america", ja: "チリコンカン", romaji: "chirikonkan" },
+            { category: "america", ja: "パンケーキ", romaji: "panke-ki" },
+            { category: "america", ja: "ドナツ", romaji: "do-natsu" },
+            { category: "america", ja: "ジャコカツ", romaji: "jakokatsu" },
+            { category: "america", ja: "ハッシュポテト", romaji: "hasshupoteto" },
+            { category: "america", ja: "ビスケット", romaji: "bisuketto" },
+            { category: "america", ja: "チーズカーズ", romaji: "chi-zuka-zu" },
+            { category: "america", ja: "ルートビア", romaji: "ru-tobia" },
+            { category: "america", ja: "サンデー", romaji: "sande-" },
 
-            // イタリアン (italy)
+            // イタリアン (italy) - 32単語
             { category: "italy", ja: "オムライス", romaji: "omuraisu" },
             { category: "italy", ja: "ピザ", romaji: "piza" },
             { category: "italy", ja: "スパゲッティ", romaji: "supagetti" },
@@ -1170,10 +1226,26 @@
             { category: "italy", ja: "ジェノべーゼ", romaji: "jenobe-ze" },
             { category: "italy", ja: "ミートソース", romaji: "mi-toso-su" },
             { category: "italy", ja: "リゾット", romaji: "rizotto" },
-            { category: "italy", ja: "ミストローネ", romaji: "minesturo-ne" },
+            { category: "italy", ja: "ミネストローネ", romaji: "minesturo-ne" },
             { category: "italy", ja: "カプレーゼ", romaji: "kapure-ze" },
+            { category: "italy", ja: "ティラミス", romaji: "tiramisu" },
+            { category: "italy", ja: "パンナコッタ", romaji: "pannakotta" },
+            { category: "italy", ja: "フォカッチャ", romaji: "fokaccya" },
+            { category: "italy", ja: "ブルスケッタ", romaji: "burusuketta" },
+            { category: "italy", ja: "ボロネーゼ", romaji: "borone-ze" },
+            { category: "italy", ja: "ボンゴレビアンコ", romaji: "bongorebianko" },
+            { category: "italy", ja: "ペンネアラビアータ", romaji: "pennearabia-ta" },
+            { category: "italy", ja: "クアトロフォルマッジ", romaji: "kuatoroforumajji" },
+            { category: "italy", ja: "バーニャカウダ", romaji: "ba-nyakauda" },
+            { category: "italy", ja: "アクアパッツァ", romaji: "akuapattsa" },
+            { category: "italy", ja: "ジェラート", romaji: "jera-to" },
+            { category: "italy", ja: "カルパッチョ", romaji: "karupaccshio" },
+            { category: "italy", ja: "ニョッキ", romaji: "nyokki" },
+            { category: "italy", ja: "パニーニ", romaji: "pani-ni" },
+            { category: "italy", ja: "ビスコッティ", romaji: "bisukotti" },
+            { category: "italy", ja: "ゼッポリーレ", romaji: "zeppori-re" },
 
-            // スイーツ・カフェ (sweet)
+            // スイーツ・カフェ (sweet) - 40単語
             { category: "sweet", ja: "プリン", romaji: "purin" },
             { category: "sweet", ja: "パンケーキ", romaji: "panke-ki" },
             { category: "sweet", ja: "メロンパン", romaji: "meronpan" },
@@ -1194,7 +1266,6 @@
             { category: "sweet", ja: "フィナンシェ", romaji: "finanshe" },
             { category: "sweet", ja: "エクレア", romaji: "ekurea" },
             { category: "sweet", ja: "モンブラン", romaji: "monburan" },
-            { category: "sweet", ja: "ティラミス", romaji: "tiramisu" },
             { category: "sweet", ja: "タルト", romaji: "taruto" },
             { category: "sweet", ja: "ガトーショコラ", romaji: "gato-shokora" },
             { category: "sweet", ja: "わらび餅", romaji: "warabimochi" },
@@ -1205,10 +1276,18 @@
             { category: "sweet", ja: "フレンチトースト", romaji: "furenchito-suto" },
             { category: "sweet", ja: "クレープ", romaji: "kure-pu" },
             { category: "sweet", ja: "ワッフル", romaji: "waffuru" },
-            { category: "sweet", ja: "マンゴープリン", romaji: "mango-purin" },
-            { category: "sweet", ja: "エッグタルト", romaji: "eggutaruto" },
+            { category: "sweet", ja: "シフォンケーキ", romaji: "shifonke-ki" },
+            { category: "sweet", ja: "マドレーヌ", romaji: "madore-nu" },
+            { category: "sweet", ja: "スコーン", romaji: "suko-n" },
+            { category: "sweet", ja: "パウンドケーキ", romaji: "paundoke-ki" },
+            { category: "sweet", ja: "カステラ", romaji: "kasutera" },
+            { category: "sweet", ja: "どら焼き", romaji: "dorayaki" },
+            { category: "sweet", ja: "大福", romaji: "daifuku" },
+            { category: "sweet", ja: "チュロス", romaji: "churosu" },
+            { category: "sweet", ja: "ロールケーキ", romaji: "ro-ruke-ki" },
+            { category: "sweet", ja: "ガレット", romaji: "garetto" },
 
-            // アジアンエスニック (asia)
+            // アジアンエスニック (asia) - 30単語
             { category: "asia", ja: "テンペ", romaji: "tenpe" },
             { category: "asia", ja: "ビビンバ", romaji: "bibinba" },
             { category: "asia", ja: "タコライス", romaji: "takoraisu" },
@@ -1223,8 +1302,24 @@
             { category: "asia", ja: "グリーンカレー", romaji: "guri-nka-re-" },
             { category: "asia", ja: "パッタイ", romaji: "pattai" },
             { category: "asia", ja: "フォー", romaji: "fo-" },
+            { category: "asia", ja: "スンドゥブ", romaji: "sundubu" },
+            { category: "asia", ja: "タッカルビ", romaji: "takkarubi" },
+            { category: "asia", ja: "ヤンニョムチキン", romaji: "yannyomuchikin" },
+            { category: "asia", ja: "キンパ", romaji: "kinpa" },
+            { category: "asia", ja: "冷麺", romaji: "reimen" },
+            { category: "asia", ja: "サムゲタン", romaji: "samugetan" },
+            { category: "asia", ja: "サテ", romaji: "sate" },
+            { category: "asia", ja: "ガドガド", romaji: "gadogado" },
+            { category: "asia", ja: "ミーゴレン", romaji: "mi-goren" },
+            { category: "asia", ja: "ラクサ", romaji: "rakusa" },
+            { category: "asia", ja: "バインミー", romaji: "bainmi-" },
+            { category: "asia", ja: "ナン", romaji: "nan" },
+            { category: "asia", ja: "サモサ", romaji: "samosa" },
+            { category: "asia", ja: "キーマカレー", romaji: "ki-maka-re-" },
+            { category: "asia", ja: "ラッシー", romaji: "rasshi-" },
+            { category: "asia", ja: "ビリヤニ", romaji: "biriyani" },
 
-            // ヨーロピアン (europe)
+            // ヨーロピアン (europe) - 30単語
             { category: "europe", ja: "たこ焼き", romaji: "takoyaki" }, 
             { category: "europe", ja: "から揚げ", romaji: "karaage" },
             { category: "europe", ja: "エビフライ", romaji: "ebifurai" },
@@ -1233,7 +1328,6 @@
             { category: "europe", ja: "ロールキャベツ", romaji: "ro-rukyabetsu" },
             { category: "europe", ja: "チキン南蛮", romaji: "chikinnanban" },
             { category: "europe", ja: "コーンスープ", romaji: "ko-nsu-pu" },
-            { category: "europe", ja: "クラムチャウダー", romaji: "kuramuchauda-" },
             { category: "europe", ja: "ビーフシチュー", romaji: "bi-fushichu-" },
             { category: "europe", ja: "ポトフ", romaji: "potofu" },
             { category: "europe", ja: "タコス", romaji: "takosu" },
@@ -1242,12 +1336,22 @@
             { category: "europe", ja: "パエリア", romaji: "paeria" },
             { category: "europe", ja: "アヒージョ", romaji: "ahi-jo" },
             { category: "europe", ja: "ミートパイ", romaji: "mi-topai" },
-            { category: "europe", ja: "チュロス", romaji: "churosu" },
             { category: "europe", ja: "チーズフォンデュ", romaji: "chi-zufondyu" },
             { category: "europe", ja: "ボルシチ", romaji: "borushichi" },
             { category: "europe", ja: "シュニッツェル", romaji: "shunittseru" },
+            { category: "europe", ja: "エスカロップ", romaji: "esukaroppu" },
+            { category: "europe", ja: "ガレット", romaji: "garetto" },
+            { category: "europe", ja: "キッシュ", romaji: "kisshu" },
+            { category: "europe", ja: "エスカルゴ", romaji: "esukarugo" },
+            { category: "europe", ja: "フリット", romaji: "furitto" },
+            { category: "europe", ja: "ゴーフレット", romaji: "go-furetto" },
+            { category: "europe", ja: "ソーセージ", romaji: "so-se-ji" },
+            { category: "europe", ja: "プレッツェル", romaji: "purettseru" },
+            { category: "europe", ja: "ザワークラウト", romaji: "zawa-kurauto" },
+            { category: "europe", ja: "アイントプフ", romaji: "aintopufu" },
+            { category: "europe", ja: "パテ", romaji: "pate" },
 
-            // 宇宙の謎グルメ (space)
+            // 宇宙の謎グルメ (space) - 20単語
             { category: "space", ja: "火星パフェ", romaji: "kaseipafe" },
             { category: "space", ja: "スペースナポリタン", romaji: "supe-sunaporitan" },
             { category: "space", ja: "銀河チャーハン", romaji: "gingachashan" },
@@ -1256,8 +1360,23 @@
             { category: "space", ja: "アンドロメダステーキ", romaji: "andoromedasute-ki" },
             { category: "space", ja: "ビッグバンバーガー", romaji: "biggubanba-ga-" },
             { category: "space", ja: "超新星バニラアイス", romaji: "choushinnseibaniraaisu" },
-            { category: "space", ja: "コズミックピザ", romaji: "kozumikkupiza" }
+            { category: "space", ja: "コズミックピザ", romaji: "kozumikkupiza" },
+            { category: "space", ja: "星屑ジュース", romaji: "hoshikuzuju-su" },
+            { category: "space", ja: "エイリアンラーメン", romaji: "eirianra-men" },
+            { category: "space", ja: "隕石ステーキ", romaji: "insekisute-ki" },
+            { category: "space", ja: "サターンドーナツ", romaji: "sata-ndo-natsu" },
+            { category: "space", ja: "ネビュラグラタン", romaji: "nebyuraguratan" },
+            { category: "space", ja: "パルサーオムライス", romaji: "parusa-omuraisu" },
+            { category: "space", ja: "ワームホールスープ", romaji: "wa-muho-rusu-pu" },
+            { category: "space", ja: "プラズマゼリー", romaji: "purazumazeri-" },
+            { category: "space", ja: "ギャラクシーサンド", romaji: "gyarakuxi-sando" },
+            { category: "space", ja: "無重力コロッケ", romaji: "mujuuryokukorokke" },
+            { category: "space", ja: "ダークマターカレー", romaji: "da-kumata-ka-re-" }
         ];
+
+        window.onload = function() {
+            loadGameData();
+        };
     </script>
 </body>
 </html>
