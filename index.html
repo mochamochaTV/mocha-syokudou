@@ -20,24 +20,29 @@
             text-align: center;
             padding: 40px 20px;
             margin: 0;
-            background-color: #fcedc9;
             min-height: 100vh;
             box-sizing: border-box;
             position: relative;
+            transition: background 0.3s ease;
         }
 
         body::before {
             content: "";
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            background-image: url('bg.png');
             background-size: cover;
             background-position: center;
+            transition: background-image 0.5s ease;
         }
+
+        /* 画面ごとの背景設定 */
+        body.bg-home::before { background-image: url('bg.png'); }
+        body.bg-game::before { background-image: url('game_bg.png'); }
+        body.bg-shop::before { background-image: url('shop_bg.png'); }
+        body.bg-trophy::before { background-image: url('trophy_bg.png'); }
+        body.bg-storage::before { background-image: url('storage_bg.png'); }
+        body.bg-lounge::before { background-image: url('lounge_bg.png'); }
 
         h1 {
             font-size: 2.8rem;
@@ -312,7 +317,7 @@
         .trophy-room-container {
             width: 100%;
             max-width: 500px;
-            aspect-ratio: 1 / 0.88; /* 画像の比率に合わせる */
+            aspect-ratio: 1 / 0.88;
             margin: 0 auto 25px auto;
             background-image: url('IMG_4998.png');
             background-size: 100% 100%;
@@ -323,7 +328,6 @@
             overflow: hidden;
         }
 
-        /* 6つの台座の上にトロフィーを絶対配置 */
         .trophy-spot {
             position: absolute;
             width: 16%;
@@ -344,7 +348,6 @@
             font-size: 1.8rem;
         }
 
-        /* 各台座の座標（画像の位置にフィットさせています） */
         #trophy-0 { top: 16%; left: 11%; }
         #trophy-1 { top: 16%; left: 42%; }
         #trophy-2 { top: 16%; left: 73%; }
@@ -352,7 +355,7 @@
         #trophy-4 { top: 58%; left: 42%; }
         #trophy-5 { top: 58%; left: 73%; }
 
-        /* ショップタブ */
+        /* ショップ・カスタムリスト共通 */
         .shop-tabs {
             display: flex;
             justify-content: center;
@@ -501,6 +504,15 @@
             background: #fff0f0;
         }
 
+        /* 休憩室特有スタイル */
+        .lounge-marmot-preview {
+            background: #fff;
+            padding: 15px;
+            border-radius: 15px;
+            border: 3px solid #f39c12;
+            margin-bottom: 20px;
+        }
+
         @media (max-width: 480px) {
             body { padding: 15px 10px; }
             h1 { font-size: 1.8rem; padding: 6px 20px; margin-bottom: 8px; }
@@ -526,7 +538,7 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-home">
 
     <h1>🍔 もっちゃもっちゃ食堂 🍰</h1>
     <div class="subtitle">〜 1分間でたくさん食べて、売り上げを伸ばそう！ 〜</div>
@@ -539,16 +551,18 @@
                 🏪 現在の累計売上：<span id="total-sales-display">￥0</span>
             </div>
 
-            <img src="normal.png" alt="キャラクター" style="width: 120px; margin-bottom: 15px;"><br>
+            <img id="home-marmot-img" src="normal.png" alt="キャラクター" style="width: 120px; margin-bottom: 15px;"><br>
             
             <div class="vertical-btn-group">
                 <button id="start-btn">注文開始！</button>
                 <button id="to-shop-btn" style="background-color: #34495e; box-shadow: 0 5px 0 #2c3e50;">🔨 メニュー・設備開発</button>
-                <button id="to-storage-btn" style="background-color: #27ae60; box-shadow: 0 5px 0 #219653;">🏆 トロフィー＆貯蔵庫</button>
+                <button id="to-storage-btn" style="background-color: #27ae60; box-shadow: 0 5px 0 #219653;">📦 食材＆アイテム貯蔵庫</button>
+                <button id="to-trophy-btn" style="background-color: #9b59b6; box-shadow: 0 5px 0 #8e44ad;">🏆 特设トロフィールーム</button>
+                <button id="to-lounge-btn" style="background-color: #e67e22; box-shadow: 0 5px 0 #d35400;">🐹 休憩室 (着せ替え＆ガチャ)</button>
             </div>
 
             <div class="debug-box">
-                <span style="font-size:0.8rem; font-weight:bold; color:#e74c3c;">🛠️ 製作者限定デバッグツール</span><br>
+                <span style="font-size:0.8rem; font-weight:bold; color:#e74c3c;">🛠️ デバッグツール</span><br>
                 <button id="debug-money-btn" style="font-size:1rem; padding:5px 15px; background-color:#e74c3c; box-shadow: 0 4px 0 #c0392b; margin-top:5px;">💰 資金＋￥1,000,000</button>
             </div>
         </div>
@@ -558,20 +572,32 @@
             <div class="total-sales-box">
                 💰 手持ちの資金：<span id="shop-sales-display">￥0</span>
             </div>
-
             <div class="shop-tabs">
                 <button class="shop-tab-btn active" id="tab-menu-btn">🍳 新メニュー</button>
                 <button class="shop-tab-btn" id="tab-skill-btn">🌟 永続スキル</button>
                 <button class="shop-tab-btn" id="tab-item-btn">🎒 消費アイテム</button>
             </div>
-
             <div class="shop-list" id="shop-list-container"></div>
             <button id="back-home-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
         </div>
 
         <div id="storage-screen" class="hidden">
+            <h2>📦 食材・アイテム・スキル貯蔵庫</h2>
+            <div style="max-height: 420px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
+                <div class="storage-section-title">🎒 次回持ち込み消費アイテム（使い切り）</div>
+                <div class="shop-list" id="storage-item-list-container"></div>
+
+                <div class="storage-section-title">🌟 スキルカスタム設定（ON/OFF・レベル調整）</div>
+                <div class="shop-list" id="storage-skill-list-container"></div>
+
+                <div class="storage-section-title">🍱 開店メニュー設定（ジャンルON/OFF）</div>
+                <div class="shop-list" id="storage-menu-list-container"></div>
+            </div>
+            <button id="back-home-storage-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
+        </div>
+
+        <div id="trophy-screen" class="hidden">
             <h2>🏆 もっちゃの特設トロフィールーム</h2>
-            
             <div class="trophy-room-container" id="trophy-room-box">
                 <div id="trophy-0" class="trophy-spot" onclick="alertTrophy(0)"></div>
                 <div id="trophy-1" class="trophy-spot" onclick="alertTrophy(1)"></div>
@@ -580,21 +606,26 @@
                 <div id="trophy-4" class="trophy-spot" onclick="alertTrophy(4)"></div>
                 <div id="trophy-5" class="trophy-spot" onclick="alertTrophy(5)"></div>
             </div>
+            <button id="back-home-trophy-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
+        </div>
 
-            <h2>📦 食材・アイテム・スキル貯蔵庫</h2>
-            
-            <div style="max-height: 320px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
-                <div class="storage-section-title">🎒 次回持ち込み消費アイテム（使い切り）</div>
-                <div class="shop-list" id="storage-item-list-container" style="max-height:none; margin-bottom:0;"></div>
-
-                <div class="storage-section-title">🌟 スキルカスタム設定（ON/OFF・レベル調整）</div>
-                <div class="shop-list" id="storage-skill-list-container" style="max-height:none; margin-bottom:0;"></div>
-
-                <div class="storage-section-title">🍱 開店メニュー設定（ジャンルON/OFF）</div>
-                <div class="shop-list" id="storage-menu-list-container" style="max-height:none; margin-bottom:0;"></div>
+        <div id="lounge-screen" class="hidden">
+            <h2>🐹 マーモット休憩室 👔</h2>
+            <div class="lounge-marmot-preview">
+                <p style="font-weight:bold; margin-top:0;">現在のコーディネート</p>
+                <img id="lounge-marmot-img" src="normal.png" alt="選択マーモット" style="width:130px;"><br>
+                <span id="lounge-marmot-name" style="font-weight:bold; color:#e67e22;">ノーマルもっちゃ</span>
             </div>
 
-            <button id="back-home-storage-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
+            <div class="total-sales-box" style="margin-bottom:15px;">
+                💎 マーモットガチャ <span style="font-size:0.9rem; color:#7f8c8d;">(1回￥50,000)</span>
+                <button id="lounge-gacha-btn" style="font-size:1.1rem; padding:6px 15px; margin-left:10px; background-color:#e74c3c; box-shadow:0 4px 0 #c0392b;">ガチャを引く</button>
+            </div>
+
+            <div class="storage-section-title">👔 解放済みの衣装・クローゼット</div>
+            <div class="shop-list" id="lounge-marmot-list-container" style="max-height:240px;"></div>
+
+            <button id="back-home-lounge-btn" style="background-color: #95a5a6; box-shadow: 0 5px 0 #7f8c8d;">戻る</button>
         </div>
 
         <div id="game-screen" class="hidden">
@@ -612,7 +643,7 @@
 
         <div id="result-screen" class="hidden">
             <h2>🎉 注文終了！ 🎉</h2>
-            <img src="image_1.png" alt="キャラクター" style="width: 120px; margin-bottom: 10px;">
+            <img id="result-marmot-img" src="image_1.png" alt="キャラクター" style="width: 120px; margin-bottom: 10px;">
             <div id="result"></div>
             <div style="margin: 15px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
                 <button id="save-receipt-btn" class="sub-btn" style="background-color: #34495e; box-shadow: 0 4px 0 #2c3e50;">🧾 レシートを保存</button>
@@ -626,13 +657,22 @@
     </div>
 
     <script>
+        // サウンド・BGMマネージャー
         const chewSound = new Audio('chew.mp3'); 
-        const bgmSound = new Audio('bgm.mp3');
-        bgmSound.loop = true;
-        bgmSound.volume = 0.4;
         const cashSound = new Audio('cash.mp3');
-        const shoutSound = new Audio('shout.mp3'); 
-        shoutSound.volume = 0.6; 
+        const shoutSound = new Audio('shout.mp3'); shoutSound.volume = 0.6; 
+
+        let currentBGM = null;
+        function playBGM(fileUrl) {
+            if (currentBGM) {
+                if (currentBGM.src.includes(fileUrl)) return; // 同じBGMならそのまま
+                currentBGM.pause();
+            }
+            currentBGM = new Audio(fileUrl);
+            currentBGM.loop = true;
+            currentBGM.volume = 0.4;
+            currentBGM.play().catch(e => console.log("BGM再生ブロックを回避:", e));
+        }
 
         let audioCtx = null;
         let typeAudioBuffer = null;
@@ -650,7 +690,6 @@
         function playBoostedTypeSound(currentCombo) {
             if (!audioCtx || !typeAudioBuffer) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
-
             const source = audioCtx.createBufferSource();
             source.buffer = typeAudioBuffer;
             const gainNode = audioCtx.createGain();
@@ -684,6 +723,15 @@
         let activeDrinkEffect = false;
         let activeCurryEffect = false;
         let activeBentoEffect = false;
+
+        // マーモット衣装データ構成
+        const marmotSkins = [
+            { id: "normal", name: "ノーマルもっちゃ", icon: "🐹", normalSrc: "normal.png", eatSrc: "image_1.png", crySrc: "shout.png" },
+            { id: "chef", name: "コックもっちゃ", icon: "👨‍🍳", normalSrc: "chef_normal.png", eatSrc: "chef_eat.png", crySrc: "chef_cry.png" },
+            { id: "maid", name: "メイドもっちゃ", icon: "🧹", normalSrc: "maid_normal.png", eatSrc: "maid_eat.png", crySrc: "maid_cry.png" },
+            { id: "king", name: "王様もっちゃ", icon: "👑", normalSrc: "king_normal.png", eatSrc: "king_eat.png", crySrc: "king_cry.png" },
+            { id: "space", name: "宇宙飛行士もっちゃ", icon: "👨‍🚀", normalSrc: "space_normal.png", eatSrc: "space_eat.png", crySrc: "space_cry.png" }
+        ];
 
         const categoryBonusConfig = {
             china: { name: "中華料理開発お祝い", perCount: 500 },
@@ -719,7 +767,6 @@
             { id: "bento", name: "もっちゃ特製お弁当箱", icon: "🍱", cost: 50000, desc: "次の1ゲームのみ、レシート末尾の【新メニュー開発ボーナス】がすべて1.5倍に跳ね上がる！" }
         ];
 
-        // トロフィーの基本設定
         const trophyConfig = [
             { name: "ブロンズもっちゃ像", icon: "🥉", desc: "1ゲームの売上が￥10,000に到達する" },
             { name: "シルバーもっちゃ像", icon: "🥈", desc: "1ゲームの売上が￥100,000に到達する" },
@@ -737,11 +784,13 @@
             equippedSkills: { apron: 0, hourglass: 0, pan: 0, megaphone: 0 }, 
             items: { drink: 0, curry: 0, bento: 0 },
             itemSwitch: { drink: false, curry: false, bento: false },
-            trophies: [false, false, false, false, false, false] // トロフィー獲得状況
+            trophies: [false, false, false, false, false, false],
+            unlockedSkins: ["normal"], // 初期所持スキン
+            currentSkin: "normal"      // 現在装備中のスキン
         };
 
         function loadGameData() {
-            const saved = localStorage.getItem("moccha_shokudo_v7_data");
+            const saved = localStorage.getItem("moccha_shokudo_v8_data");
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -754,14 +803,17 @@
                         saveData.items = Object.assign(saveData.items, parsed.items);
                         saveData.itemSwitch = Object.assign(saveData.itemSwitch, parsed.itemSwitch);
                         if (parsed.trophies) saveData.trophies = parsed.trophies;
+                        if (parsed.unlockedSkins) saveData.unlockedSkins = parsed.unlockedSkins;
+                        if (parsed.currentSkin) saveData.currentSkin = parsed.currentSkin;
                     }
                 } catch(e) { console.log("データロード失敗", e); }
             }
             updateSalesDisplay();
+            applyEquippedSkinHome();
         }
 
         function saveGameData() {
-            localStorage.setItem("moccha_shokudo_v7_data", JSON.stringify(saveData));
+            localStorage.setItem("moccha_shokudo_v8_data", JSON.stringify(saveData));
         }
 
         function updateSalesDisplay() {
@@ -769,9 +821,17 @@
             document.getElementById("shop-sales-display").textContent = `￥${saveData.totalSales.toLocaleString()}`;
         }
 
+        function applyEquippedSkinHome() {
+            const skin = marmotSkins.find(s => s.id === saveData.currentSkin) || marmotSkins[0];
+            document.getElementById("home-marmot-img").src = skin.normalSrc;
+        }
+
+        // DOMの取得
         const startScreen = document.getElementById("start-screen");
         const shopScreen = document.getElementById("shop-screen");
         const storageScreen = document.getElementById("storage-screen");
+        const trophyScreen = document.getElementById("trophy-screen");
+        const loungeScreen = document.getElementById("lounge-screen");
         const gameScreen = document.getElementById("game-screen");
         const resultScreen = document.getElementById("result-screen");
         const gameContainer = document.getElementById("game-container");
@@ -779,8 +839,14 @@
         const startBtn = document.getElementById("start-btn");
         const toShopBtn = document.getElementById("to-shop-btn");
         const toStorageBtn = document.getElementById("to-storage-btn");
+        const toTrophyBtn = document.getElementById("to-trophy-btn");
+        const toLoungeBtn = document.getElementById("to-lounge-btn");
+
         const backHomeBtn = document.getElementById("back-home-btn");
         const backHomeStorageBtn = document.getElementById("back-home-storage-btn");
+        const backHomeTrophyBtn = document.getElementById("back-home-trophy-btn");
+        const backHomeLoungeBtn = document.getElementById("back-home-lounge-btn");
+
         const retryBtn = document.getElementById("retry-btn");
         const homeBtn = document.getElementById("home-btn");
         
@@ -795,31 +861,81 @@
         const saveReceiptBtn = document.getElementById("save-receipt-btn");
         const shareReceiptBtn = document.getElementById("share-receipt-btn");
         const mobileInput = document.getElementById("mobile-input");
+
         const shopListContainer = document.getElementById("shop-list-container");
         const storageMenuListContainer = document.getElementById("storage-menu-list-container");
         const storageItemListContainer = document.getElementById("storage-item-list-container");
         const storageSkillListContainer = document.getElementById("storage-skill-list-container");
+        const loungeMarmotListContainer = document.getElementById("lounge-marmot-list-container");
 
         const tabMenuBtn = document.getElementById("tab-menu-btn");
         const tabSkillBtn = document.getElementById("tab-skill-btn");
         const tabItemBtn = document.getElementById("tab-item-btn");
+        const loungeGachaBtn = document.getElementById("lounge-gacha-btn");
+
+        // 共通画面切り替え関数（背景＆BGM）
+        function changeView(hideScreen, showScreen, bgClass, bgmFile) {
+            hideScreen.classList.add("hidden");
+            showScreen.classList.remove("hidden");
+            document.body.className = bgClass;
+            playBGM(bgmFile);
+        }
 
         document.getElementById("debug-money-btn").addEventListener("click", () => {
             saveData.totalSales += 1000000;
-            if (saveData.totalSales >= 1000000) saveData.trophies[2] = true; // 累計ボーナスチェック
+            if (saveData.totalSales >= 1000000) saveData.trophies[2] = true;
             saveGameData();
             updateSalesDisplay();
             cashSound.currentTime = 0; cashSound.play().catch(e=>{});
             if (!shopScreen.classList.contains("hidden")) renderShop();
         });
 
+        // 画面ナビゲーションイベント
         startBtn.addEventListener("click", () => { if (isMobile) mobileInput.focus(); loadTypeSound().then(startGame); });
         retryBtn.addEventListener("click", () => { if (isMobile) mobileInput.focus(); startGame(); });
-        homeBtn.addEventListener("click", () => { resultScreen.classList.add("hidden"); startScreen.classList.remove("hidden"); updateSalesDisplay(); });
-        toShopBtn.addEventListener("click", () => { startScreen.classList.add("hidden"); shopScreen.classList.remove("hidden"); switchShopTab("menu"); });
-        backHomeBtn.addEventListener("click", () => { shopScreen.classList.add("hidden"); startScreen.classList.remove("hidden"); updateSalesDisplay(); });
-        toStorageBtn.addEventListener("click", () => { startScreen.classList.add("hidden"); storageScreen.classList.remove("hidden"); renderStorage(); });
-        backHomeStorageBtn.addEventListener("click", () => { storageScreen.classList.add("hidden"); startScreen.classList.remove("hidden"); updateSalesDisplay(); });
+        
+        homeBtn.addEventListener("click", () => {
+            changeView(resultScreen, startScreen, "bg-home", "home-bgm.mp3");
+            updateSalesDisplay();
+            applyEquippedSkinHome();
+        });
+        
+        toShopBtn.addEventListener("click", () => {
+            changeView(startScreen, shopScreen, "bg-shop", "shop_bgm.mp3");
+            switchShopTab("menu");
+        });
+        backHomeBtn.addEventListener("click", () => {
+            changeView(shopScreen, startScreen, "bg-home", "home-bgm.mp3");
+            updateSalesDisplay();
+        });
+
+        toStorageBtn.addEventListener("click", () => {
+            changeView(startScreen, storageScreen, "bg-storage", "storage_bgm.mp3");
+            renderStorage();
+        });
+        backHomeStorageBtn.addEventListener("click", () => {
+            changeView(storageScreen, startScreen, "bg-home", "home-bgm.mp3");
+            updateSalesDisplay();
+        });
+
+        toTrophyBtn.addEventListener("click", () => {
+            changeView(startScreen, trophyScreen, "bg-trophy", "trophy_bgm.mp3");
+            renderTrophyRoom();
+        });
+        backHomeTrophyBtn.addEventListener("click", () => {
+            changeView(trophyScreen, startScreen, "bg-home", "home-bgm.mp3");
+            updateSalesDisplay();
+        });
+
+        toLoungeBtn.addEventListener("click", () => {
+            changeView(startScreen, loungeScreen, "bg-lounge", "lounge_bgm.mp3");
+            renderLounge();
+        });
+        backHomeLoungeBtn.addEventListener("click", () => {
+            changeView(loungeScreen, startScreen, "bg-home", "home-bgm.mp3");
+            updateSalesDisplay();
+            applyEquippedSkinHome();
+        });
 
         tabMenuBtn.addEventListener("click", () => switchShopTab("menu"));
         tabSkillBtn.addEventListener("click", () => switchShopTab("skill"));
@@ -843,9 +959,9 @@
         });
         gameContainer.addEventListener("click", () => { if (isPlaying && isMobile) mobileInput.focus(); });
 
+        // 2. ショップレンダリング
         function renderShop() {
             shopListContainer.innerHTML = "";
-
             if (currentShopTab === "menu") {
                 shopCategories.forEach(item => {
                     const isUnlocked = saveData.unlocked[item.id];
@@ -878,14 +994,12 @@
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "shop-item";
                     let actionHtml = "";
-
                     if (maxLv >= 5) { actionHtml = `<span class="shop-item-status" style="color:#e67e22;">★極・MAX</span>`; }
                     else {
                         const nextCost = skill.costs[maxLv];
                         const canBuy = saveData.totalSales >= nextCost;
                         actionHtml = `<button class="shop-btn" ${canBuy ? "" : "disabled"} onclick="upgradeSkill('${skill.id}', ${nextCost})">LvUP (￥${nextCost.toLocaleString()})</button>`;
                     }
-
                     itemDiv.innerHTML = `
                         <div class="shop-item-info">
                             <div class="shop-item-icon">${skill.icon}</div>
@@ -906,7 +1020,6 @@
                     const canBuy = saveData.totalSales >= item.cost;
                     const itemDiv = document.createElement("div");
                     itemDiv.className = "shop-item";
-
                     itemDiv.innerHTML = `
                         <div class="shop-item-info">
                             <div class="shop-item-icon">${item.icon}</div>
@@ -950,19 +1063,8 @@
             }
         };
 
+        // 3. 貯蔵庫レンダリング
         function renderStorage() {
-            // トロフィーの表示更新
-            for (let i = 0; i < 6; i++) {
-                const spot = document.getElementById(`trophy-${i}`);
-                if (saveData.trophies[i]) {
-                    spot.textContent = trophyConfig[i].icon;
-                    spot.classList.remove("trophy-locked");
-                } else {
-                    spot.textContent = "❓";
-                    spot.classList.add("trophy-locked");
-                }
-            }
-
             storageMenuListContainer.innerHTML = "";
             storageItemListContainer.innerHTML = "";
             storageSkillListContainer.innerHTML = "";
@@ -972,14 +1074,12 @@
                 const isActive = saveData.itemSwitch[item.id];
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "shop-item";
-                
                 let toggleHtml = count <= 0 ? `<span class="lock-text">未所持</span>` : `
                     <label class="switch">
                         <input type="checkbox" ${isActive ? "checked" : ""} onchange="toggleItemSwitch('${item.id}', this.checked)">
                         <span class="slider"></span>
                     </label>
                 `;
-
                 itemDiv.innerHTML = `
                     <div class="shop-item-info">
                         <div class="shop-item-icon">${item.icon}</div>
@@ -998,7 +1098,6 @@
                 const currentEquipped = saveData.equippedSkills[skill.id] || 0;
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "shop-item";
-
                 let actionHtml = "";
                 if (maxLv === 0) {
                     actionHtml = `<span class="lock-text">🔒 未購入</span>`;
@@ -1011,7 +1110,6 @@
                     selectHtml += `</select>`;
                     actionHtml = selectHtml;
                 }
-
                 itemDiv.innerHTML = `
                     <div class="shop-item-info">
                         <div class="shop-item-icon">${skill.icon}</div>
@@ -1030,14 +1128,12 @@
                 const isActive = saveData.activeSwitch[item.id];
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "shop-item";
-
                 let toggleHtml = !isUnlocked ? `<span class="lock-text">🔒 未開発</span>` : `
                     <label class="switch">
                         <input type="checkbox" ${isActive ? "checked" : ""} onchange="toggleCategory('${item.id}', this.checked)">
                         <span class="slider"></span>
                     </label>
                 `;
-
                 itemDiv.innerHTML = `
                     <div class="shop-item-info">
                         <div class="shop-item-icon">${item.icon}</div>
@@ -1052,20 +1148,103 @@
             });
         }
 
+        // 4. トロフィールームレンダリング
+        function renderTrophyRoom() {
+            for (let i = 0; i < 6; i++) {
+                const spot = document.getElementById(`trophy-${i}`);
+                if (saveData.trophies[i]) {
+                    spot.textContent = trophyConfig[i].icon;
+                    spot.classList.remove("trophy-locked");
+                } else {
+                    spot.textContent = "❓";
+                    spot.classList.add("trophy-locked");
+                }
+            }
+        }
+
         window.alertTrophy = function(index) {
             const config = trophyConfig[index];
             const isUnlocked = saveData.trophies[index];
-            if (isUnlocked) {
-                alert(`🏆【${config.name}】獲得済み！\n条件: ${config.desc}`);
-            } else {
-                alert(`🔒【未解放のトロフィー台座】\n獲得条件: ${config.desc}`);
-            }
+            if (isUnlocked) { alert(`🏆【${config.name}】獲得済み！\n条件: ${config.desc}`); }
+            else { alert(`🔒【未解放のトロフィー台座】\n獲得条件: ${config.desc}`); }
         };
 
         window.toggleCategory = function(id, isChecked) { saveData.activeSwitch[id] = isChecked; saveGameData(); };
         window.toggleItemSwitch = function(id, isChecked) { saveData.itemSwitch[id] = isChecked; saveGameData(); };
         window.changeSkillLevel = function(id, value) { saveData.equippedSkills[id] = parseInt(value, 10); saveGameData(); };
 
+        // 5. 休憩室＆ガチャシステムレンダリング
+        function renderLounge() {
+            const currentSkinObj = marmotSkins.find(s => s.id === saveData.currentSkin) || marmotSkins[0];
+            document.getElementById("lounge-marmot-img").src = currentSkinObj.normalSrc;
+            document.getElementById("lounge-marmot-name").textContent = currentSkinObj.name;
+
+            loungeMarmotListContainer.innerHTML = "";
+            marmotSkins.forEach(skin => {
+                const isUnlocked = saveData.unlockedSkins.includes(skin.id);
+                const isEquipped = saveData.currentSkin === skin.id;
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "shop-item";
+                
+                let actionHtml = "";
+                if (!isUnlocked) {
+                    actionHtml = `<span class="lock-text" style="color:#7f8c8d;">🔒 ガチャ限定</span>`;
+                } else if (isEquipped) {
+                    actionHtml = `<span class="shop-item-status" style="color:#e67e22;">👕 装備中</span>`;
+                } else {
+                    actionHtml = `<button class="shop-btn" style="background-color:#27ae60; box-shadow:0 3px 0 #219653;" onclick="equipSkin('${skin.id}')">着替える</button>`;
+                }
+
+                itemDiv.innerHTML = `
+                    <div class="shop-item-info">
+                        <div class="shop-item-icon">${skin.icon}</div>
+                        <div>
+                            <div class="shop-item-name">${skin.name}</div>
+                            <div style="font-size:0.8rem; color:#7f8c8d;">状態: ${isUnlocked ? "入手済み" : "未所持"}</div>
+                        </div>
+                    </div>
+                    <div>${actionHtml}</div>
+                `;
+                loungeMarmotListContainer.appendChild(itemDiv);
+            });
+        }
+
+        loungeGachaBtn.addEventListener("click", () => {
+            const cost = 50000;
+            if (saveData.totalSales < cost) {
+                alert("資金が足りません！(1回￥50,000が必要です)");
+                return;
+            }
+            saveData.totalSales -= cost;
+            cashSound.currentTime = 0; cashSound.play().catch(e=>{});
+
+            // ガチャの抽選確率判定
+            const lockedSkins = marmotSkins.filter(s => !saveData.unlockedSkins.includes(s.id));
+            if (lockedSkins.length === 0) {
+                alert("全てのマーモット衣装をコンプリートしています！(￥50,000は返金されます)");
+                saveData.totalSales += cost;
+                updateSalesDisplay();
+                return;
+            }
+
+            // ランダムに未獲得スキンを1個抽選
+            const winSkin = lockedSkins[Math.floor(Math.random() * lockedSkins.length)];
+            saveData.unlockedSkins.push(winSkin.id);
+            saveGameData();
+            updateSalesDisplay();
+            alert(`✨🎯 ガチャ結果 🎯✨\n\n【${winSkin.icon} ${winSkin.name}】を新しく引き当てた！`);
+            renderLounge();
+        });
+
+        window.equipSkin = function(id) {
+            if (saveData.unlockedSkins.includes(id)) {
+                saveData.currentSkin = id;
+                saveGameData();
+                renderLounge();
+            }
+        };
+
+        // ローマ字処理ロジック
         function getRomajiVariants(baseRomaji) {
             let variants = [baseRomaji];
             const rules = [
@@ -1093,15 +1272,14 @@
             return Array.from(visited);
         }
 
+        // 6. タイピングゲームコア
         function startGame() {
             if (isMobile) mobileInput.focus();
-
             remainingWords = wordList.filter(word => saveData.unlocked[word.category] && saveData.activeSwitch[word.category]);
             if (remainingWords.length === 0) { remainingWords = wordList.filter(word => word.category === "japan"); }
 
             const hourglassLv = saveData.equippedSkills.hourglass || 0;
             timeLeft = 60 + (hourglassLv * 2); 
-
             activeDrinkEffect = false; activeCurryEffect = false; activeBentoEffect = false;
 
             if (saveData.itemSwitch.drink && (saveData.items.drink || 0) > 0) {
@@ -1117,13 +1295,13 @@
 
             isPlaying = true; solvedWordCount = 0; totalCharCount = 0; totalOriginalMoney = 0; missCount = 0; comboCount = 0; maxComboCount = 0; orderHistory = []; 
             
-            startScreen.classList.add("hidden"); resultScreen.classList.add("hidden");
-            gameScreen.classList.remove("hidden");
+            // ゲーム画面への移行 (背景: bg-game, BGM: bgm.mp3)
+            changeView(startScreen, gameScreen, "bg-game", "bgm.mp3");
+            resultScreen.classList.add("hidden");
             document.body.classList.add("ingame");
+
             penaltyPopElement.classList.remove("popup-animation"); timerElement.classList.remove("shake-animation"); comboContainer.textContent = ""; 
             resetCharacterImg();
-
-            bgmSound.currentTime = 0; bgmSound.play().catch(e => {});
 
             timerElement.textContent = `残り時間: ${timeLeft} 秒`;
             timerInterval = setInterval(() => {
@@ -1144,7 +1322,6 @@
 
             const megaphoneLv = saveData.equippedSkills.megaphone || 0;
             let pool = [...remainingWords];
-            
             if (megaphoneLv > 0) {
                 pool.sort((a, b) => b.romaji.length - a.romaji.length);
                 const cutSize = Math.max(3, Math.ceil(pool.length / (6 - megaphoneLv)));
@@ -1153,7 +1330,6 @@
 
             const randomIndex = Math.floor(Math.random() * pool.length);
             const targetWord = pool[randomIndex];
-            
             const origIndex = remainingWords.indexOf(targetWord);
             if (origIndex > -1) remainingWords.splice(origIndex, 1);
 
@@ -1179,6 +1355,8 @@
             const nextBuffer = typedBuffer + inputChar;
             const matchingVariants = currentWord.variants.filter(v => v.startsWith(nextBuffer));
 
+            const currentSkinObj = marmotSkins.find(s => s.id === saveData.currentSkin) || marmotSkins[0];
+
             if (matchingVariants.length > 0) {
                 typedBuffer = nextBuffer; totalCharCount++;
                 comboCount += activeDrinkEffect ? 2 : 1;
@@ -1202,7 +1380,8 @@
                     orderHistory.push({ name: currentWord.ja, price: baseWordPrice, category: currentWord.category });
                     
                     chewSound.currentTime = 0; chewSound.play().catch(e => {});
-                    characterImgElement.src = 'image_1.png'; characterImgElement.style.transform = 'scale(1.1)';
+                    // 装備スキンに応じた食べるグラフィックを適用
+                    characterImgElement.src = currentSkinObj.eatSrc; characterImgElement.style.transform = 'scale(1.1)';
                     if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
                     mouthOpenTimeout = setTimeout(resetCharacterImg, 1500);
 
@@ -1225,7 +1404,8 @@
                 setTimeout(() => { if (isPlaying) gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; }, 100);
 
                 const clonedShout = shoutSound.cloneNode(true); clonedShout.play().catch(e => {});
-                characterImgElement.src = 'shout.png'; characterImgElement.style.transform = 'scale(1.1)';
+                // 装備スキンに応じたミス(叫び)グラフィックを適用
+                characterImgElement.src = currentSkinObj.crySrc; characterImgElement.style.transform = 'scale(1.1)';
                 if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
                 mouthOpenTimeout = setTimeout(resetCharacterImg, 1000);
             }
@@ -1238,37 +1418,44 @@
             handleCharInput(event.key);
         }
 
-        function resetCharacterImg() { characterImgElement.src = 'normal.png'; characterImgElement.style.transform = 'scale(1)'; }
+        function resetCharacterImg() { 
+            const currentSkinObj = marmotSkins.find(s => s.id === saveData.currentSkin) || marmotSkins[0];
+            characterImgElement.src = currentSkinObj.normalSrc; characterImgElement.style.transform = 'scale(1)'; 
+        }
 
+        // 7. リザルト処理
         function endGame() {
             isPlaying = false; clearInterval(timerInterval);
             if (mouthOpenTimeout) clearTimeout(mouthOpenTimeout);
-            bgmSound.pause(); gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; document.body.classList.remove("ingame");
+            if (currentBGM) currentBGM.pause(); 
+            
+            gameContainer.style.backgroundColor = "rgba(255, 255, 255, 0.92)"; 
+            document.body.classList.remove("ingame");
             cashSound.currentTime = 0; cashSound.play().catch(e => {});
+            
+            // リザルト画面
             gameScreen.classList.add("hidden"); resultScreen.classList.remove("hidden");
             if (isMobile) mobileInput.blur();
+
+            const currentSkinObj = marmotSkins.find(s => s.id === saveData.currentSkin) || marmotSkins[0];
+            document.getElementById("result-marmot-img").src = currentSkinObj.eatSrc;
 
             let receiptItemsHtml = "";
             let categoryCounts = { china:0, america:0, italy:0, sweet:0, asia:0, europe:0, space:0 };
 
             orderHistory.forEach(item => {
                 receiptItemsHtml += `<div class="receipt-row"><span>・${item.name}</span><span>￥${item.price.toLocaleString()}</span></div>`;
-                if(categoryCounts[item.category] !== undefined) {
-                    categoryCounts[item.category]++;
-                }
+                if(categoryCounts[item.category] !== undefined) { categoryCounts[item.category]++; }
             });
             if (orderHistory.length === 0) { receiptItemsHtml = `<div class="receipt-row" style="color:#7f8c8d;"><span>（客足ゼロ）</span><span>￥0</span></div>`; }
 
             let subtotal = totalOriginalMoney;
-
             const panLv = saveData.equippedSkills.pan || 0;
             const panBonusRatio = panLv * 0.1; 
             const panBonusMoney = Math.floor(subtotal * panBonusRatio);
 
             let drinkBonusMoney = 0;
-            if (activeDrinkEffect && maxComboCount >= 10) {
-                drinkBonusMoney = Math.floor(subtotal * 0.15); 
-            }
+            if (activeDrinkEffect && maxComboCount >= 10) { drinkBonusMoney = Math.floor(subtotal * 0.15); }
 
             let developmentBonusMoney = 0;
             let bonusRowsHtml = "";
@@ -1283,9 +1470,7 @@
             for (let cat in categoryBonusConfig) {
                 if (categoryCounts[cat] > 0) {
                     let basePerCount = categoryBonusConfig[cat].perCount;
-                    if (activeBentoEffect) {
-                        basePerCount = Math.floor(basePerCount * 1.5);
-                    }
+                    if (activeBentoEffect) { basePerCount = Math.floor(basePerCount * 1.5); }
                     const totalCatBonus = basePerCount * categoryCounts[cat];
                     developmentBonusMoney += totalCatBonus;
 
@@ -1299,7 +1484,7 @@
             const tax = Math.floor(finalSubtotal * 0.1);
             const grandTotal = finalSubtotal + tax; 
 
-            // 🏆 トロフィー解放判定ロジック
+            // トロフィー解放判定
             let trophyAlerts = [];
             if (grandTotal >= 10000 && !saveData.trophies[0]) { saveData.trophies[0] = true; trophyAlerts.push(trophyConfig[0].name); }
             if (grandTotal >= 100000 && !saveData.trophies[1]) { saveData.trophies[1] = true; trophyAlerts.push(trophyConfig[1].name); }
@@ -1309,12 +1494,11 @@
 
             saveData.totalSales += grandTotal; 
             if (saveData.totalSales >= 1000000 && !saveData.trophies[2]) { saveData.trophies[2] = true; trophyAlerts.push(trophyConfig[2].name); }
-            
             saveGameData();
 
             if (trophyAlerts.length > 0) {
                 setTimeout(() => {
-                    alert(`✨🏆 トロフィー獲得！！ 🏆✨\n\n・${trophyAlerts.join('\n・')}\n\n「トロフィー＆貯蔵庫」に飾られました！`);
+                    alert(`✨🏆 トロフィー獲得！！ 🏆✨\n\n・${trophyAlerts.join('\n・')}\n\n「特設トロフィールーム」に飾られました！`);
                 }, 800);
             }
 
@@ -1640,7 +1824,7 @@
             { category: "space", ja: "ダークマターカレー", romaji: "da-kumata-ka-re-" }
         ];
 
-        window.onload = function() { loadGameData(); };
+        window.onload = function() { loadGameData(); playBGM("home-bgm.mp3"); };
     </script>
 </body>
 </html>
